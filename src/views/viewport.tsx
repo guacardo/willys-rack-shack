@@ -1,15 +1,15 @@
 import { createSignal, onCleanup } from "solid-js";
+import { Draggable } from "../components/ui/draggable/draggable";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
     isSpaceHeld: boolean;
+    setIsGrabbing: (grabbing: boolean) => void;
 }
 
 export function Viewport(props: ViewportProps) {
     const [pan, setPan] = createSignal<{ x: number; y: number }>({ x: 0, y: 0 });
     const [scale, setScale] = createSignal<number>(1);
-    const [elemPos1, setElemPos1] = createSignal<{ x: number; y: number }>({ x: 50, y: 50 });
-    const [elemPos2, setElemPos2] = createSignal<{ x: number; y: number }>({ x: 200, y: 120 });
 
     // Listen for spacebar keydown/keyup globally
     const onKeyDown = (e: KeyboardEvent) => {
@@ -31,6 +31,7 @@ export function Viewport(props: ViewportProps) {
         if (e.button !== 0) return;
         if (!props.isSpaceHeld) return;
 
+        props.setIsGrabbing(true);
         const startX = e.clientX;
         const startY = e.clientY;
         const origPan = pan();
@@ -43,7 +44,14 @@ export function Viewport(props: ViewportProps) {
         };
 
         window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", () => window.removeEventListener("mousemove", onMouseMove), { once: true });
+        window.addEventListener(
+            "mouseup",
+            () => {
+                window.removeEventListener("mousemove", onMouseMove);
+                props.setIsGrabbing(false);
+            },
+            { once: true }
+        );
     };
 
     window.addEventListener("mousedown", onViewportMouseDown);
@@ -85,46 +93,6 @@ export function Viewport(props: ViewportProps) {
         window.removeEventListener("wheel", onWheel as EventListener);
     });
 
-    // Drag logic for element 1
-    const onElem1MouseDown = (e: MouseEvent) => {
-        if (props.isSpaceHeld) return; // Prevent element drag if space is held (panning mode)
-        e.preventDefault();
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const origPos = elemPos1();
-
-        const factor = 1 / scale();
-        const onMouseMove = (moveEvent: MouseEvent) => {
-            setElemPos1({
-                x: origPos.x + (moveEvent.clientX - startX) * factor,
-                y: origPos.y + (moveEvent.clientY - startY) * factor,
-            });
-        };
-
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", () => window.removeEventListener("mousemove", onMouseMove), { once: true });
-    };
-
-    // Drag logic for element 2
-    const onElem2MouseDown = (e: MouseEvent) => {
-        if (props.isSpaceHeld) return; // Prevent element drag if space is held (panning mode)
-        e.preventDefault();
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const origPos = elemPos2();
-
-        const factor = 1 / scale();
-        const onMouseMove = (moveEvent: MouseEvent) => {
-            setElemPos2({
-                x: origPos.x + (moveEvent.clientX - startX) * factor,
-                y: origPos.y + (moveEvent.clientY - startY) * factor,
-            });
-        };
-
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", () => window.removeEventListener("mousemove", onMouseMove), { once: true });
-    };
-
     return (
         <div
             style={{
@@ -140,36 +108,34 @@ export function Viewport(props: ViewportProps) {
                 "transform-origin": "0 0",
             }}
         >
-            {/* Element 1 */}
-            <div
-                style={{
-                    position: "absolute",
-                    left: `${elemPos1().x}px`,
-                    top: `${elemPos1().y}px`,
-                    width: "80px",
-                    height: "80px",
-                    background: "lime",
-                    cursor: "grab",
-                }}
-                onMouseDown={onElem1MouseDown}
-            >
-                Drag me 1!
-            </div>
-            {/* Element 2 */}
-            <div
-                style={{
-                    position: "absolute",
-                    left: `${elemPos2().x}px`,
-                    top: `${elemPos2().y}px`,
-                    width: "80px",
-                    height: "80px",
-                    background: "deepskyblue",
-                    cursor: "grab",
-                }}
-                onMouseDown={onElem2MouseDown}
-            >
-                Drag me 2!
-            </div>
+            <Draggable initial={{ x: 50, y: 50 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                <div
+                    style={{
+                        width: "80px",
+                        height: "80px",
+                        background: "lime",
+                        display: "flex",
+                        "align-items": "center",
+                        "justify-content": "center",
+                    }}
+                >
+                    Drag me 1!
+                </div>
+            </Draggable>
+            <Draggable initial={{ x: 200, y: 120 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                <div
+                    style={{
+                        width: "80px",
+                        height: "80px",
+                        background: "deepskyblue",
+                        display: "flex",
+                        "align-items": "center",
+                        "justify-content": "center",
+                    }}
+                >
+                    Drag me 2!
+                </div>
+            </Draggable>
         </div>
     );
 }

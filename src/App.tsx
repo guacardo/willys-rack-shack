@@ -6,13 +6,14 @@ import { createSignal } from "solid-js";
 function App() {
     document.body.setAttribute("data-theme", "neon-green");
 
-    // Move isSpaceHeld signal up to App and pass as prop
+    // Signals for spacebar and mouse movement (panning)
     const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
+    const [isGrabbing, setIsGrabbing] = createSignal(false);
 
     return (
         <>
-            <div class={`${styles.app} ${isSpaceHeld() ? styles.grabbing : ""}`}>
-                <Viewport setIsSpaceHeld={setIsSpaceHeld} isSpaceHeld={isSpaceHeld()} />
+            <div class={`${styles.app} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}>
+                <Viewport setIsSpaceHeld={setIsSpaceHeld} isSpaceHeld={isSpaceHeld()} setIsGrabbing={setIsGrabbing} />
             </div>
         </>
     );

@@ -1,0 +1,45 @@
+import { createSignal, type JSX } from "solid-js";
+
+interface DraggableProps {
+    initial: { x: number; y: number };
+    getScale?: () => number;
+    isSpaceHeld?: boolean;
+    children: JSX.Element;
+}
+
+export function Draggable(props: DraggableProps) {
+    const [pos, setPos] = createSignal(props.initial);
+
+    const onMouseDown = (e: MouseEvent) => {
+        if (props.isSpaceHeld) return; // Don't drag if space is held
+        e.preventDefault();
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const origPos = pos();
+        const scale = props.getScale ? props.getScale() : 1;
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            setPos({
+                x: origPos.x + (moveEvent.clientX - startX) / scale,
+                y: origPos.y + (moveEvent.clientY - startY) / scale,
+            });
+        };
+
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", () => window.removeEventListener("mousemove", onMouseMove), { once: true });
+    };
+
+    return (
+        <div
+            style={{
+                position: "absolute",
+                left: `${pos().x}px`,
+                top: `${pos().y}px`,
+                cursor: "grab",
+            }}
+            onMouseDown={onMouseDown}
+        >
+            {props.children}
+        </div>
+    );
+}
