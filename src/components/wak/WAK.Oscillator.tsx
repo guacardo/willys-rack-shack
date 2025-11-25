@@ -2,9 +2,10 @@ import { createSignal, onCleanup } from "solid-js";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 
 const ctx = new window.AudioContext();
-const oscEngine = new OscillatorEngine(ctx);
 
 export function Oscillator() {
+    const oscEngine = new OscillatorEngine(ctx);
+
     const [freq, setFreq] = createSignal(oscEngine.getFrequency());
     const [type, setType] = createSignal<OscillatorType>(oscEngine.getType());
 
