@@ -1,4 +1,5 @@
 import { createSignal, type JSX } from "solid-js";
+import styles from "./draggable.module.scss";
 
 interface DraggableProps {
     initial: { x: number; y: number };
@@ -31,11 +32,10 @@ export function Draggable(props: DraggableProps) {
 
     return (
         <div
+            class={styles.draggable}
             style={{
-                position: "absolute",
                 left: `${pos().x}px`,
                 top: `${pos().y}px`,
-                cursor: "grab",
             }}
             onMouseDown={onMouseDown}
         >
