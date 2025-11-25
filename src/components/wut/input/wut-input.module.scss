@@ -1,0 +1,22 @@
+.wutInput {
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--border-radius);
+    padding: 0.75em 1em;
+    font-family: "Orbitron";
+    font-size: 1.1em;
+    box-shadow: var(--box-shadow);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+        border-color: var(--color-accent);
+        box-shadow: 0 0 12px 2px var(--color-accent), var(--box-shadow);
+    }
+}
+
+.error {
+    border-color: #ff2d55;
+    box-shadow: 0 0 12px 2px #ff2d55, var(--box-shadow);
+}
