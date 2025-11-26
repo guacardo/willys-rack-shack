@@ -1,10 +1,10 @@
 import { createSignal, onCleanup } from "solid-js";
+import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 
-const ctx = new window.AudioContext();
-
 export function Oscillator() {
-    const oscEngine = new OscillatorEngine(ctx);
+    const { audioCtx } = useWebAudioContext(); // Get shared context
+    const oscEngine = new OscillatorEngine(audioCtx); // Pass it in
 
     const [freq, setFreq] = createSignal(oscEngine.getFrequency());
     const [type, setType] = createSignal<OscillatorType>(oscEngine.getType());

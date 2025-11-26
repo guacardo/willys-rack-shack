@@ -1,0 +1,13 @@
+.top-status {
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999999999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
