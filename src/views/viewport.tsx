@@ -1,7 +1,8 @@
 import { createSignal, onCleanup } from "solid-js";
-import { Draggable } from "../components/ui/draggable/draggable";
 import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { Gain } from "@/components/wak/gain/WAK.Gain";
+import { Snappable } from "@/components/ui/snappable/snappable";
+import { snapTargets } from "@/stores/snap.store";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
@@ -109,15 +110,27 @@ export function Viewport(props: ViewportProps) {
                 "transform-origin": "0 0",
             }}
         >
-            <Draggable initial={{ x: 50, y: 50 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
-                <Oscillator />
-            </Draggable>
-            <Draggable initial={{ x: 200, y: 120 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
-                <Oscillator />
-            </Draggable>
-            <Draggable initial={{ x: 350, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
-                <Gain />
-            </Draggable>
+            <Snappable
+                initial={{ x: 50, y: 50 }}
+                getScale={scale}
+                isSpaceHeld={props.isSpaceHeld}
+                snapTargets={snapTargets}
+                render={({ onEngineReady }) => <Oscillator onEngineReady={onEngineReady} />}
+            />
+            <Snappable
+                initial={{ x: 250, y: 250 }}
+                getScale={scale}
+                isSpaceHeld={props.isSpaceHeld}
+                snapTargets={snapTargets}
+                render={({ onEngineReady }) => <Oscillator onEngineReady={onEngineReady} />}
+            />
+            <Snappable
+                initial={{ x: 350, y: 200 }}
+                getScale={scale}
+                isSpaceHeld={props.isSpaceHeld}
+                snapTargets={snapTargets}
+                render={({ onEngineReady }) => <Gain onEngineReady={onEngineReady} />}
+            />
         </div>
     );
 }

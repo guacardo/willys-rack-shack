@@ -1,7 +1,7 @@
 .draggable {
     position: absolute;
     touch-action: none;
-    border: 4px solid transparent;
+    border: 4px solid var(--color-primary);
     border-radius: var(--border-radius);
 
     &:hover {

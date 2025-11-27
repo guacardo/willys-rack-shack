@@ -5,6 +5,7 @@ interface DraggableProps {
     initial: { x: number; y: number };
     getScale?: () => number;
     isSpaceHeld?: boolean;
+    onDragEnd?: (pos: { x: number; y: number }) => void;
     children: JSX.Element;
 }
 
@@ -33,8 +34,15 @@ export function Draggable(props: DraggableProps) {
             });
         };
 
+        const onMouseUp = () => {
+            window.removeEventListener("mousemove", onMouseMove);
+            if (props.onDragEnd) {
+                props.onDragEnd(pos());
+            }
+        };
+
         window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", () => window.removeEventListener("mousemove", onMouseMove), { once: true });
+        window.addEventListener("mouseup", onMouseUp, { once: true });
     };
 
     return (

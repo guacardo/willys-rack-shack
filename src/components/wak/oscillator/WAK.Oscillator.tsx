@@ -4,13 +4,16 @@ import { OscillatorEngine } from "@/audio/oscillator.engine";
 import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
 import { WUTInput } from "../../wut/input/WUT.Input";
+import type { IAudioEngine } from "@/audio/engine";
 
-export function Oscillator() {
-    const { audioCtx } = useWebAudioContext(); // Get shared context
-    const oscEngine = new OscillatorEngine(audioCtx); // Pass it in
+export function Oscillator({ onEngineReady }: { onEngineReady?: (engine: IAudioEngine) => void }) {
+    const { audioCtx } = useWebAudioContext();
+    const oscEngine = new OscillatorEngine(audioCtx);
 
     const [freq, setFreq] = createSignal(oscEngine.getFrequency());
     const [type, setType] = createSignal<OscillatorType>(oscEngine.getType());
+
+    onEngineReady?.(oscEngine);
 
     // Poll actual frequency (for modulation, if any)
     const [actualFreq, setActualFreq] = createSignal(oscEngine.getFrequency());
