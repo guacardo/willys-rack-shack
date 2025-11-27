@@ -1,6 +1,7 @@
 import { createSignal, onCleanup } from "solid-js";
 import { Draggable } from "../components/ui/draggable/draggable";
 import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
+import { Gain } from "@/components/wak/gain/WAK.Gain";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
@@ -102,7 +103,6 @@ export function Viewport(props: ViewportProps) {
                 top: `${pan().y}px`,
                 width: "100vw",
                 height: "100vh",
-                background: "transparent",
                 overflow: "visible",
                 "z-index": 100,
                 transform: `scale(${scale()})`,
@@ -114,6 +114,9 @@ export function Viewport(props: ViewportProps) {
             </Draggable>
             <Draggable initial={{ x: 200, y: 120 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
                 <Oscillator />
+            </Draggable>
+            <Draggable initial={{ x: 350, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                <Gain />
             </Draggable>
         </div>
     );
