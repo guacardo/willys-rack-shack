@@ -2,8 +2,8 @@ import { createSignal, onCleanup } from "solid-js";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import styles from "./WAK.Oscillator.module.scss";
-import { WUTText } from "../wut/text/WUT.Text";
-import { WUTInput } from "../wut/input/WUT.Input";
+import { WUTText } from "../../wut/text/WUT.Text";
+import { WUTInput } from "../../wut/input/WUT.Input";
 
 export function Oscillator() {
     const { audioCtx } = useWebAudioContext(); // Get shared context

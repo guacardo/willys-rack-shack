@@ -1,6 +1,6 @@
 import { createSignal, onCleanup } from "solid-js";
 import { Draggable } from "../components/ui/draggable/draggable";
-import { Oscillator } from "@/components/wak/WAK.Oscillator";
+import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
