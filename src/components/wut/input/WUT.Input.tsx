@@ -2,10 +2,7 @@ import type { JSX } from "solid-js";
 import { splitProps } from "solid-js";
 import styles from "./wut-input.module.scss";
 
-type WUTInputProps = {
-    type?: string;
-    value?: string;
-    placeholder?: string;
+type WUTInputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
     error?: boolean;
     class?: string;
     onInput?: JSX.EventHandlerUnion<HTMLInputElement, InputEvent>;

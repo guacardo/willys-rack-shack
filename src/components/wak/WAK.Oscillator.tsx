@@ -1,6 +1,9 @@
 import { createSignal, onCleanup } from "solid-js";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
+import styles from "./WAK.Oscillator.module.scss";
+import { WUTText } from "../wut/text/WUT.Text";
+import { WUTInput } from "../wut/input/WUT.Input";
 
 export function Oscillator() {
     const { audioCtx } = useWebAudioContext(); // Get shared context
@@ -28,13 +31,12 @@ export function Oscillator() {
     };
 
     return (
-        <div>
+        <div class={styles.oscillator}>
             <label>
-                Frequency (Hz):
-                <input type="range" min="50" max="2000" value={freq()} onInput={handleFreqChange} />
-                <span>
+                <WUTInput type="range" min="50" max="2000" value={freq().toString()} onInput={handleFreqChange} />
+                <WUTText variant="subheader">
                     {freq()} (actual: {actualFreq()})
-                </span>
+                </WUTText>
             </label>
             <label>
                 Type:

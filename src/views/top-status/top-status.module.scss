@@ -1,6 +1,6 @@
 .top-status {
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-primary);
+    background-color: var(--color-bg2);
+    color: var(--color-text);
     position: fixed;
     top: 0;
     left: 0;
@@ -10,4 +10,6 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+    box-shadow: var(--box-shadow);
+    padding: 8px 0;
 }

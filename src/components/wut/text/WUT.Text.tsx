@@ -1,11 +1,11 @@
 import type { JSX } from "solid-js";
 import styles from "./wut-text.module.scss";
 
-type WUTTextVariant = "header" | "subheader" | "body" | "number";
+type WUTTextVariant = "header" | "subheader" | "body" | "number" | "label";
 
 interface WUTTextProps {
     children: JSX.Element;
-    variant?: WUTTextVariant;
+    variant: WUTTextVariant;
     class?: string;
 }
 
@@ -14,6 +14,7 @@ const variantStyles: Record<WUTTextVariant, string> = {
     subheader: styles["wut-subheader"],
     body: styles["wut-body"],
     number: styles["wut-number"],
+    label: styles["wut-label"],
 };
 
 export function WUTText(props: WUTTextProps) {

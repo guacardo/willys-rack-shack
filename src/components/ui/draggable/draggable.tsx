@@ -12,11 +12,10 @@ export function Draggable(props: DraggableProps) {
     const [pos, setPos] = createSignal(props.initial);
 
     const onMouseDown = (e: MouseEvent) => {
-        if (props.isSpaceHeld) return; // Don't drag if space is held
-
+        // Don't drag if space is held
         // Don't drag if clicking on interactive elements
         const target = e.target as HTMLElement;
-        if (target.matches("input, select, button, textarea, a")) {
+        if (props.isSpaceHeld || target.matches("input, select, button, textarea, a")) {
             return;
         }
 
