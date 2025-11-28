@@ -6,7 +6,6 @@ import { WebAudioProvider } from "./contexts/web-audio-context";
 import { StatusBar } from "./views/status-bar/status-bar";
 import { ModuleGroups } from "./views/module-groups/module-groups";
 import { ContextBar } from "./views/context-bar/context-bar";
-import { modules, setModules } from "./stores/module.store";
 import { ModuleDetails } from "./views/module-details/module-details";
 import type { IAudioEngine } from "./audio/engine";
 
@@ -25,7 +24,7 @@ function App() {
         <WebAudioProvider>
             <StatusBar theme={theme()} setTheme={setTheme} />
             <ContextBar visible={true}>
-                <ModuleGroups expanded={true} modules={modules} setModules={setModules} currentModule={currentModule()} setCurrentModule={setCurrentModule} />
+                <ModuleGroups expanded={true} currentModule={currentModule()} setCurrentModule={setCurrentModule} />
                 <ModuleDetails module={currentModule()} />
             </ContextBar>
 

@@ -2,18 +2,18 @@ import { createSignal, onCleanup } from "solid-js";
 import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { Gain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
-import type { IAudioEngine } from "@/audio/engine";
+import { ModuleType } from "@/audio/engine";
+import { engines } from "@/stores/engines.store";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
     isSpaceHeld: boolean;
     setIsGrabbing: (grabbing: boolean) => void;
-    modules: IAudioEngine[];
 }
 
 const WAKMap = {
-    oscillator: Oscillator,
-    gain: Gain,
+    [ModuleType.Oscillator]: Oscillator,
+    [ModuleType.Gain]: Gain,
 };
 
 export function Viewport(props: ViewportProps) {
@@ -116,25 +116,19 @@ export function Viewport(props: ViewportProps) {
                 "transform-origin": "0 0",
             }}
         >
-            <Snappable
-                initial={{ x: 50, y: 50 }}
-                getScale={scale}
-                isSpaceHeld={props.isSpaceHeld}
-                render={({ onEngineReady }) => <Oscillator onEngineReady={onEngineReady} />}
-            />
-            {props.modules.map((module, index) => {
-                const Component = WAKMap[module.type as keyof typeof WAKMap];
+            {engines().map((engine, index) => {
+                const Component = WAKMap[engine.moduleType];
                 if (!Component) return null;
                 return (
                     <Snappable
-                        key={`${module.name}_${index}`}
+                        key={`${engine.moduleType}_${index}`}
                         initial={{ x: 200 + index * 150, y: 200 }}
                         getScale={scale}
                         isSpaceHeld={props.isSpaceHeld}
                         render={({ onEngineReady }) => <Component onEngineReady={onEngineReady} />}
                     />
                 );
-            }
+            })}
         </div>
     );
 }

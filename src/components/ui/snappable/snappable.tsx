@@ -1,7 +1,7 @@
 import { createSignal, onCleanup, type JSX } from "solid-js";
 import { Draggable } from "@/components/ui/draggable/draggable";
 import type { IAudioEngine } from "@/audio/engine";
-import { registerSnapTarget, unregisterSnapTarget } from "@/stores/snap.store";
+import { registerSnapTarget, unregisterSnapTarget } from "@/stores/snappables.store";
 
 interface SnappableProps {
     key?: string;

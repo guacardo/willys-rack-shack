@@ -7,9 +7,11 @@ type GainPorts = {
 };
 
 export class GainEngine implements IAudioEngine {
+    name: string = "Gain";
     ctx: AudioContext;
     gain: GainNode;
     ports: GainPorts;
+    moduleType = "gain" as const;
 
     constructor(ctx: AudioContext) {
         this.ctx = ctx;
