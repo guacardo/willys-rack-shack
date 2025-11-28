@@ -2,13 +2,19 @@ import { createSignal, onCleanup } from "solid-js";
 import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { Gain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
-import { snapTargets } from "@/stores/snap.store";
+import type { IAudioEngine } from "@/audio/engine";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
     isSpaceHeld: boolean;
     setIsGrabbing: (grabbing: boolean) => void;
+    modules: IAudioEngine[];
 }
+
+const WAKMap = {
+    oscillator: Oscillator,
+    gain: Gain,
+};
 
 export function Viewport(props: ViewportProps) {
     const [pan, setPan] = createSignal<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -114,23 +120,21 @@ export function Viewport(props: ViewportProps) {
                 initial={{ x: 50, y: 50 }}
                 getScale={scale}
                 isSpaceHeld={props.isSpaceHeld}
-                snapTargets={snapTargets}
                 render={({ onEngineReady }) => <Oscillator onEngineReady={onEngineReady} />}
             />
-            <Snappable
-                initial={{ x: 250, y: 250 }}
-                getScale={scale}
-                isSpaceHeld={props.isSpaceHeld}
-                snapTargets={snapTargets}
-                render={({ onEngineReady }) => <Oscillator onEngineReady={onEngineReady} />}
-            />
-            <Snappable
-                initial={{ x: 350, y: 200 }}
-                getScale={scale}
-                isSpaceHeld={props.isSpaceHeld}
-                snapTargets={snapTargets}
-                render={({ onEngineReady }) => <Gain onEngineReady={onEngineReady} />}
-            />
+            {props.modules.map((module, index) => {
+                const Component = WAKMap[module.type as keyof typeof WAKMap];
+                if (!Component) return null;
+                return (
+                    <Snappable
+                        key={`${module.name}_${index}`}
+                        initial={{ x: 200 + index * 150, y: 200 }}
+                        getScale={scale}
+                        isSpaceHeld={props.isSpaceHeld}
+                        render={({ onEngineReady }) => <Component onEngineReady={onEngineReady} />}
+                    />
+                );
+            }
         </div>
     );
 }

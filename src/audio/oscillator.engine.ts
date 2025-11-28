@@ -1,15 +1,17 @@
-import type { IAudioEngine } from "./engine";
+import { updateAudioParamValue, type IAudioEngine } from "./engine";
 
-type OscillatorPorts = {
+export type OscillatorPorts = {
     output: OscillatorNode;
     frequency: AudioParam;
     detune: AudioParam;
 };
 
 export class OscillatorEngine implements IAudioEngine {
+    name: string = "Oscillator";
     ctx: AudioContext;
     osc: OscillatorNode;
     ports: OscillatorPorts;
+    moduleType = "oscillator" as const;
 
     constructor(ctx: AudioContext) {
         this.ctx = ctx;
@@ -25,19 +27,27 @@ export class OscillatorEngine implements IAudioEngine {
         };
     }
 
-    setFrequency(freq: number): void {
-        this.ports.frequency.value = freq;
+    setName(name: string): void {
+        this.name = name;
     }
 
-    getFrequency(): number {
+    getName(): string {
+        return this.name;
+    }
+
+    setProps(props: Partial<{ frequency: number | [number, number]; detune: number | [number, number]; type: OscillatorType }>) {
+        updateAudioParamValue(this.ctx, this.osc, props);
+    }
+
+    getFrequency() {
         return this.ports.frequency.value;
     }
 
-    setType(type: OscillatorType): void {
-        this.osc.type = type;
+    getDetune() {
+        return this.ports.detune.value;
     }
 
-    getType(): OscillatorType {
+    getType() {
         return this.osc.type;
     }
 
@@ -57,4 +67,16 @@ export class OscillatorEngine implements IAudioEngine {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
     }
+}
+
+export function isOscillatorEngine(obj: any): obj is IAudioEngine & { osc: OscillatorNode } {
+    return (
+        obj &&
+        typeof obj === "object" &&
+        obj.ctx instanceof AudioContext &&
+        typeof obj.ports === "object" &&
+        typeof obj.connect === "function" &&
+        typeof obj.disconnect === "function" &&
+        obj.osc instanceof OscillatorNode
+    );
 }

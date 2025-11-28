@@ -12,6 +12,7 @@ export function Oscillator({ onEngineReady }: { onEngineReady?: (engine: IAudioE
 
     const [freq, setFreq] = createSignal(oscEngine.getFrequency());
     const [type, setType] = createSignal<OscillatorType>(oscEngine.getType());
+    const [detune, setDetune] = createSignal(oscEngine.getDetune());
 
     onEngineReady?.(oscEngine);
 
@@ -20,30 +21,35 @@ export function Oscillator({ onEngineReady }: { onEngineReady?: (engine: IAudioE
     const poller = setInterval(() => setActualFreq(oscEngine.getFrequency()), 30);
     onCleanup(() => clearInterval(poller));
 
-    // UI handlers
-    const handleFreqChange = (e: Event) => {
-        const value = +(e.target as HTMLInputElement).value;
-        setFreq(value);
-        oscEngine.setFrequency(value);
-    };
-
-    const handleTypeChange = (e: Event) => {
-        const value = (e.target as HTMLSelectElement).value as OscillatorType;
-        setType(value);
-        oscEngine.setType(value);
+    const handleChange = (key: "frequency" | "type" | "detune") => (e: Event) => {
+        const rawValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+        let value: number | OscillatorType;
+        if (key === "type") {
+            value = rawValue as OscillatorType;
+            setType(value);
+        } else {
+            value = +rawValue;
+            if (key === "frequency") setFreq(value);
+            if (key === "detune") setDetune(value);
+        }
+        oscEngine.setProps({ [key]: value });
     };
 
     return (
         <div class={styles.oscillator}>
             <label>
-                <WUTInput type="range" min="50" max="2000" value={freq().toString()} onInput={handleFreqChange} />
+                <WUTInput type="range" min="50" max="2000" value={freq().toString()} onInput={handleChange("frequency")} />
                 <WUTText variant="subheader">
-                    {freq()} (actual: {actualFreq()})
+                    set: {freq()} real: {actualFreq()}
                 </WUTText>
             </label>
             <label>
+                <WUTInput type="range" min="-1200" max="1200" value={detune().toString()} onInput={handleChange("detune")} />
+                <WUTText variant="subheader">Detune: {detune()}</WUTText>
+            </label>
+            <label>
                 Type:
-                <select value={type()} onChange={handleTypeChange}>
+                <select value={type()} onChange={handleChange("type")}>
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>
                     <option value="sawtooth">Sawtooth</option>

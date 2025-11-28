@@ -1,11 +1,12 @@
-.top-status {
+.status-bar {
     background-color: var(--color-bg2);
     color: var(--color-text);
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 9999999999999;
+    height: 40px;
+    z-index: 1002;
     display: flex;
     justify-content: center;
     align-items: center;

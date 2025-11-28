@@ -3,18 +3,11 @@ import { Draggable } from "@/components/ui/draggable/draggable";
 import type { IAudioEngine } from "@/audio/engine";
 import { registerSnapTarget, unregisterSnapTarget } from "@/stores/snap.store";
 
-type SnapTarget = {
-    x: number;
-    y: number;
-    radius: number;
-    onSnap: () => void;
-};
-
 interface SnappableProps {
+    key?: string;
     initial: { x: number; y: number };
     getScale?: () => number;
     isSpaceHeld?: boolean;
-    snapTargets: SnapTarget[];
     render: (props: { onEngineReady: (engine: IAudioEngine) => void }) => JSX.Element;
 }
 
@@ -29,29 +22,13 @@ export function Snappable(props: SnappableProps) {
             radius: 40,
             engine,
             onSnap: () => {
-                // Generic snap logic, engine-specific handled via typeguards later
+                console.log("Snapped!", engine.name);
             },
         });
     }
 
-    function checkSnap(newPos: { x: number; y: number }) {
-        for (const target of props.snapTargets) {
-            const dx = newPos.x - target.x;
-            const dy = newPos.y - target.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < target.radius) {
-                setPosition({ x: target.x, y: target.y });
-                target.onSnap();
-                return true;
-            }
-        }
-        return false;
-    }
-
     function handleDragEnd(newPos: { x: number; y: number }) {
-        if (!checkSnap(newPos)) {
-            setPosition(newPos);
-        }
+        setPosition(newPos);
     }
 
     onCleanup(() => {

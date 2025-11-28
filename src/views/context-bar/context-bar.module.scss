@@ -1,0 +1,14 @@
+.context-bar {
+    background-color: var(--color-bg2);
+    position: fixed;
+    top: 40px;
+    bottom: 0;
+    right: -400px;
+    width: 400px;
+    z-index: 1003;
+    padding: 16px;
+
+    &.visible {
+        right: 0;
+    }
+}

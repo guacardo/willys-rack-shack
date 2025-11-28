@@ -1,18 +1,18 @@
 import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { WUTText } from "@/components/wut/text/WUT.Text";
-import styles from "./top-status.module.scss";
+import styles from "./status-bar.module.scss";
 import { WUTButton } from "@/components/wut/button/WUTButton";
 
-interface TopStatusProps {
+interface StatusBarProps {
     theme: "light" | "dark" | "neon-green" | "synthwave";
     setTheme: (theme: "light" | "dark" | "neon-green" | "synthwave") => void;
 }
 
-export function TopStatus(props: TopStatusProps) {
+export function StatusBar(props: StatusBarProps) {
     const { state, resume } = useWebAudioContext();
 
     return (
-        <div class={styles["top-status"]}>
+        <div class={styles["status-bar"]}>
             <WUTButton variant="primary" onClick={resume} disabled={state() === "running"}>
                 Play
             </WUTButton>
