@@ -1,24 +1,21 @@
 import { createSignal, onCleanup } from "solid-js";
-import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
 import { WUTInput } from "../../wut/input/WUT.Input";
-import type { IAudioEngine } from "@/audio/engine";
 
-export function Oscillator({ onEngineReady }: { onEngineReady?: (engine: IAudioEngine) => void }) {
-    const { audioCtx } = useWebAudioContext();
-    const oscEngine = new OscillatorEngine(audioCtx);
+export interface WAKOscillatorProps {
+    engine: OscillatorEngine;
+}
 
-    const [freq, setFreq] = createSignal(oscEngine.getFrequency());
-    const [type, setType] = createSignal<OscillatorType>(oscEngine.getType());
-    const [detune, setDetune] = createSignal(oscEngine.getDetune());
-
-    onEngineReady?.(oscEngine);
+export function Oscillator({ engine }: WAKOscillatorProps) {
+    const [freq, setFreq] = createSignal(engine.getFrequency());
+    const [type, setType] = createSignal<OscillatorType>(engine.getType());
+    const [detune, setDetune] = createSignal(engine.getDetune());
 
     // Poll actual frequency (for modulation, if any)
-    const [actualFreq, setActualFreq] = createSignal(oscEngine.getFrequency());
-    const poller = setInterval(() => setActualFreq(oscEngine.getFrequency()), 30);
+    const [actualFreq, setActualFreq] = createSignal(engine.getFrequency());
+    const poller = setInterval(() => setActualFreq(engine.getFrequency()), 30);
     onCleanup(() => clearInterval(poller));
 
     const handleChange = (key: "frequency" | "type" | "detune") => (e: Event) => {
@@ -32,7 +29,7 @@ export function Oscillator({ onEngineReady }: { onEngineReady?: (engine: IAudioE
             if (key === "frequency") setFreq(value);
             if (key === "detune") setDetune(value);
         }
-        oscEngine.setProps({ [key]: value });
+        engine.setProps({ [key]: value });
     };
 
     return (

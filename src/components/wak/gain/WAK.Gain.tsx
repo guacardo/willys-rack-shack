@@ -1,28 +1,25 @@
 import { createSignal, onCleanup } from "solid-js";
 import { GainEngine } from "@/audio/gain.engine";
-import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { WUTInput } from "@/components/wut/input/WUT.Input";
 import { WUTText } from "@/components/wut/text/WUT.Text";
-import type { IAudioEngine } from "@/audio/engine";
 import styles from "./WAK.Gain.module.scss";
 
-export function Gain({ onEngineReady }: { onEngineReady?: (engine: IAudioEngine) => void }) {
-    const { audioCtx } = useWebAudioContext();
-    const gainEngine = new GainEngine(audioCtx);
+export interface WAKGainProps {
+    engine: GainEngine;
+}
 
-    const [gain, setGain] = createSignal(gainEngine.getGain());
-
-    onEngineReady?.(gainEngine);
+export function Gain({ engine }: WAKGainProps) {
+    const [gain, setGain] = createSignal(engine.getGain());
 
     // Poll actual gain value (for modulation)
-    const [actualGain, setActualGain] = createSignal(gainEngine.getGain());
-    const poller = setInterval(() => setActualGain(gainEngine.getGain()), 30);
+    const [actualGain, setActualGain] = createSignal(engine.getGain());
+    const poller = setInterval(() => setActualGain(engine.getGain()), 30);
     onCleanup(() => clearInterval(poller));
 
     const handleGainChange = (e: Event) => {
         const value = +(e.target as HTMLInputElement).value;
         setGain(value);
-        gainEngine.setGain(value);
+        engine.setGain(value);
     };
 
     return (

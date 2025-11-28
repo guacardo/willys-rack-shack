@@ -6,6 +6,7 @@ export const ModuleType = {
 export type ModuleType = (typeof ModuleType)[keyof typeof ModuleType];
 
 export interface IAudioEngine {
+    id: string;
     name: string;
     ctx: AudioContext;
     ports: Record<string, AudioNode | AudioParam>;

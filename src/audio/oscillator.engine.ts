@@ -7,13 +7,15 @@ export type OscillatorPorts = {
 };
 
 export class OscillatorEngine implements IAudioEngine {
+    id: string;
     name: string = "Oscillator";
     ctx: AudioContext;
     osc: OscillatorNode;
     ports: OscillatorPorts;
     moduleType = "oscillator" as const;
 
-    constructor(ctx: AudioContext) {
+    constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
+        this.id = id;
         this.ctx = ctx;
         this.osc = ctx.createOscillator();
         this.osc.type = "sine";
@@ -69,7 +71,7 @@ export class OscillatorEngine implements IAudioEngine {
     }
 }
 
-export function isOscillatorEngine(obj: any): obj is IAudioEngine & { osc: OscillatorNode } {
+export function isOscillatorEngine(obj: any): obj is OscillatorEngine & { osc: OscillatorNode } {
     return (
         obj &&
         typeof obj === "object" &&

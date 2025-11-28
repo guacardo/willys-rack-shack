@@ -7,13 +7,15 @@ type GainPorts = {
 };
 
 export class GainEngine implements IAudioEngine {
+    id: string;
     name: string = "Gain";
     ctx: AudioContext;
     gain: GainNode;
     ports: GainPorts;
     moduleType = "gain" as const;
 
-    constructor(ctx: AudioContext) {
+    constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
+        this.id = id;
         this.ctx = ctx;
         this.gain = ctx.createGain();
         this.gain.gain.value = 1.0;
@@ -49,4 +51,8 @@ export class GainEngine implements IAudioEngine {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
     }
+}
+
+export function isGainEngine(obj: any): obj is GainEngine & { gain: GainNode } {
+    return obj && obj.gain instanceof GainNode;
 }

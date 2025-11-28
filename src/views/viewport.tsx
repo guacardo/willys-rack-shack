@@ -2,19 +2,15 @@ import { createSignal, onCleanup } from "solid-js";
 import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { Gain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
-import { ModuleType } from "@/audio/engine";
 import { engines } from "@/stores/engines.store";
+import { isGainEngine } from "@/audio/gain.engine";
+import { isOscillatorEngine } from "@/audio/oscillator.engine";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
     isSpaceHeld: boolean;
     setIsGrabbing: (grabbing: boolean) => void;
 }
-
-const WAKMap = {
-    [ModuleType.Oscillator]: Oscillator,
-    [ModuleType.Gain]: Gain,
-};
 
 export function Viewport(props: ViewportProps) {
     const [pan, setPan] = createSignal<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -117,17 +113,29 @@ export function Viewport(props: ViewportProps) {
             }}
         >
             {engines().map((engine, index) => {
-                const Component = WAKMap[engine.moduleType];
-                if (!Component) return null;
-                return (
-                    <Snappable
-                        key={`${engine.moduleType}_${index}`}
-                        initial={{ x: 200 + index * 150, y: 200 }}
-                        getScale={scale}
-                        isSpaceHeld={props.isSpaceHeld}
-                        render={({ onEngineReady }) => <Component onEngineReady={onEngineReady} />}
-                    />
-                );
+                if (isOscillatorEngine(engine)) {
+                    return (
+                        <Snappable
+                            key={engine.id ?? `oscillator_${index}`}
+                            initial={{ x: 200 + index * 150, y: 200 }}
+                            getScale={scale}
+                            isSpaceHeld={props.isSpaceHeld}
+                            render={() => <Oscillator engine={engine} />}
+                        />
+                    );
+                }
+                if (isGainEngine(engine)) {
+                    return (
+                        <Snappable
+                            key={engine.id ?? `gain_${index}`}
+                            initial={{ x: 200 + index * 150, y: 200 }}
+                            getScale={scale}
+                            isSpaceHeld={props.isSpaceHeld}
+                            render={() => <Gain engine={engine} />}
+                        />
+                    );
+                }
+                return null;
             })}
         </div>
     );
