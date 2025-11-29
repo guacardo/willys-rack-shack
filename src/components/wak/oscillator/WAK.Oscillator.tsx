@@ -39,7 +39,8 @@ export function Oscillator({ engine }: WAKOscillatorProps) {
     return (
         <div class={styles.oscillator}>
             <label>
-                <WUTInput type="range" min="50" max="2000" value={actualFreq()} onInput={handleChange("frequency")} />
+                <WUTInput type="range" min="50" max="2000" value={actualFreq().toString()} onInput={handleChange("frequency")} />
+                <input type="range" min="50" max="2000" value={actualFreq().toString()} onInput={handleChange("frequency")} />
                 <WUTText variant="subheader">Frequency: {actualFreq()}</WUTText>
             </label>
             <label>

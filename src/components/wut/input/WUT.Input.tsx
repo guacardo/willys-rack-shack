@@ -1,5 +1,4 @@
 import type { JSX } from "solid-js";
-import { splitProps } from "solid-js";
 import styles from "./wut-input.module.scss";
 
 type WUTInputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
@@ -11,19 +10,18 @@ type WUTInputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export function WUTInput(props: WUTInputProps) {
-    const [local, rest] = splitProps(props, ["type", "value", "placeholder", "error", "class", "onInput", "onFocus", "onBlur"]);
     let inputClass = styles.wutInput;
-    if (local.error) inputClass += ` ${styles.error}`;
+    if (props.error) inputClass += ` ${styles.error}`;
     return (
         <input
-            type={local.type ?? "text"}
-            value={local.value}
-            placeholder={local.placeholder}
-            class={`${inputClass}${local.class ? ` ${local.class}` : ""}`}
-            onInput={local.onInput}
-            onFocus={local.onFocus}
-            onBlur={local.onBlur}
-            {...rest}
+            type={props.type ?? "text"}
+            value={props.value}
+            placeholder={props.placeholder}
+            class={`${inputClass}${props.class ? ` ${props.class}` : ""}`}
+            onInput={props.onInput}
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
+            {...props}
         />
     );
 }
