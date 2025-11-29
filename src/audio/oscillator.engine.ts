@@ -42,11 +42,11 @@ export class OscillatorEngine implements IAudioEngine {
     }
 
     getFrequency() {
-        return this.ports.frequency.value;
+        return this.osc.frequency.value;
     }
 
     getDetune() {
-        return this.ports.detune.value;
+        return this.osc.detune.value;
     }
 
     getType() {

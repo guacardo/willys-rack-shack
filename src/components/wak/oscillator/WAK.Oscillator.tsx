@@ -9,25 +9,29 @@ export interface WAKOscillatorProps {
 }
 
 export function Oscillator({ engine }: WAKOscillatorProps) {
-    const [freq, setFreq] = createSignal(engine.getFrequency());
-    const [type, setType] = createSignal<OscillatorType>(engine.getType());
-    const [detune, setDetune] = createSignal(engine.getDetune());
-
-    // Poll actual frequency (for modulation, if any)
+    // Poll oscillator values for reactivity
     const [actualFreq, setActualFreq] = createSignal(engine.getFrequency());
-    const poller = setInterval(() => setActualFreq(engine.getFrequency()), 30);
+    const [actualDetune, setActualDetune] = createSignal(engine.getDetune());
+    const [actualType, setActualType] = createSignal(engine.getType());
+
+    const poller = setInterval(() => {
+        setActualFreq(engine.getFrequency());
+        setActualDetune(engine.getDetune());
+        setActualType(engine.getType());
+    }, 30);
     onCleanup(() => clearInterval(poller));
 
     const handleChange = (key: "frequency" | "type" | "detune") => (e: Event) => {
         const rawValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
         let value: number | OscillatorType;
-        if (key === "type") {
-            value = rawValue as OscillatorType;
-            setType(value);
-        } else {
-            value = +rawValue;
-            if (key === "frequency") setFreq(value);
-            if (key === "detune") setDetune(value);
+        switch (key) {
+            case "type":
+                value = rawValue as OscillatorType;
+                break;
+            case "frequency":
+            case "detune":
+                value = Number(rawValue);
+                break;
         }
         engine.setProps({ [key]: value });
     };
@@ -35,18 +39,16 @@ export function Oscillator({ engine }: WAKOscillatorProps) {
     return (
         <div class={styles.oscillator}>
             <label>
-                <WUTInput type="range" min="50" max="2000" value={freq().toString()} onInput={handleChange("frequency")} />
-                <WUTText variant="subheader">
-                    set: {freq()} real: {actualFreq()}
-                </WUTText>
+                <WUTInput type="range" min="50" max="2000" value={actualFreq()} onInput={handleChange("frequency")} />
+                <WUTText variant="subheader">Frequency: {actualFreq()}</WUTText>
             </label>
             <label>
-                <WUTInput type="range" min="-1200" max="1200" value={detune().toString()} onInput={handleChange("detune")} />
-                <WUTText variant="subheader">Detune: {detune()}</WUTText>
+                <WUTInput type="range" min="-1200" max="1200" value={actualDetune().toString()} onInput={handleChange("detune")} />
+                <WUTText variant="subheader">Detune: {actualDetune()}</WUTText>
             </label>
             <label>
                 Type:
-                <select value={type()} onChange={handleChange("type")}>
+                <select value={actualType()} onChange={handleChange("type")}>
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>
                     <option value="sawtooth">Sawtooth</option>

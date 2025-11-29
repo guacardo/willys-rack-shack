@@ -115,24 +115,16 @@ export function Viewport(props: ViewportProps) {
             {engines().map((engine, index) => {
                 if (isOscillatorEngine(engine)) {
                     return (
-                        <Snappable
-                            key={engine.id ?? `oscillator_${index}`}
-                            initial={{ x: 200 + index * 150, y: 200 }}
-                            getScale={scale}
-                            isSpaceHeld={props.isSpaceHeld}
-                            render={() => <Oscillator engine={engine} />}
-                        />
+                        <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                            <Oscillator engine={engine} />
+                        </Snappable>
                     );
                 }
                 if (isGainEngine(engine)) {
                     return (
-                        <Snappable
-                            key={engine.id ?? `gain_${index}`}
-                            initial={{ x: 200 + index * 150, y: 200 }}
-                            getScale={scale}
-                            isSpaceHeld={props.isSpaceHeld}
-                            render={() => <Gain engine={engine} />}
-                        />
+                        <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                            <Gain engine={engine} />
+                        </Snappable>
                     );
                 }
                 return null;

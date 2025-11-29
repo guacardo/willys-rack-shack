@@ -1,43 +1,47 @@
-import { createSignal, onCleanup, type JSX } from "solid-js";
+import { createSignal, createEffect } from "solid-js";
 import { Draggable } from "@/components/ui/draggable/draggable";
-import type { IAudioEngine } from "@/audio/engine";
-import { registerSnapTarget, unregisterSnapTarget } from "@/stores/snappables.store";
+import { updatePosition, snappables, registerSnappable } from "@/stores/snappables.store";
 
 interface SnappableProps {
-    key?: string;
+    id: string;
     initial: { x: number; y: number };
     getScale?: () => number;
     isSpaceHeld?: boolean;
-    render: (props: { onEngineReady: (engine: IAudioEngine) => void }) => JSX.Element;
+    children?: any;
 }
 
 export function Snappable(props: SnappableProps) {
-    let snapId: string | undefined;
-    const [position, setPosition] = createSignal(props.initial);
-
-    function handleEngineReady(engine: IAudioEngine) {
-        snapId = registerSnapTarget({
-            x: position().x,
-            y: position().y,
+    // Find existing position in store by id, or register if not present
+    let initialPosition = props.initial;
+    let existingSnap = snappables.find((t) => t.id === props.id);
+    if (!existingSnap) {
+        // Register snappable if not present
+        registerSnappable({
+            id: props.id,
+            x: props.initial.x,
+            y: props.initial.y,
             radius: 40,
-            engine,
-            onSnap: () => {
-                console.log("Snapped!", engine.name);
-            },
+            onSnap: () => {},
         });
+        existingSnap = { id: props.id, x: props.initial.x, y: props.initial.y, radius: 40, onSnap: () => {} };
     }
+    initialPosition = { x: existingSnap.x, y: existingSnap.y };
+    const [position, setPosition] = createSignal(initialPosition);
+
+    // Reactively update position from store
+    createEffect(() => {
+        const snap = snappables.find((t) => t.id === props.id);
+        if (snap) setPosition({ x: snap.x, y: snap.y });
+    });
 
     function handleDragEnd(newPos: { x: number; y: number }) {
         setPosition(newPos);
+        updatePosition(props.id, newPos.x, newPos.y);
     }
-
-    onCleanup(() => {
-        if (snapId) unregisterSnapTarget(snapId);
-    });
 
     return (
         <Draggable initial={position()} getScale={props.getScale} isSpaceHeld={props.isSpaceHeld} onDragEnd={handleDragEnd}>
-            {props.render({ onEngineReady: handleEngineReady })}
+            {props.children}
         </Draggable>
     );
 }

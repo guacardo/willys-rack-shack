@@ -1,25 +1,25 @@
-import type { IAudioEngine } from "@/audio/engine";
 import { createStore } from "solid-js/store";
 
-export type SnapTarget = {
+export type Snappable = {
     id: string;
     x: number;
     y: number;
     radius: number;
-    engine: IAudioEngine;
     onSnap: () => void;
 };
 
-const [snapTargets, setSnapTargets] = createStore<SnapTarget[]>([]);
+const [snappables, setSnappables] = createStore<Snappable[]>([]);
 
-export function registerSnapTarget(target: Omit<SnapTarget, "id">): string {
-    const id = crypto.randomUUID();
-    setSnapTargets([...snapTargets, { ...target, id }]);
-    return id;
+export function registerSnappable(snappable: Snappable) {
+    setSnappables([...snappables, snappable]);
 }
 
-export function unregisterSnapTarget(id: string) {
-    setSnapTargets(snapTargets.filter((t) => t.id !== id));
+export function unregisterSnappable(id: string) {
+    setSnappables(snappables.filter((t) => t.id !== id));
+}
+export function updatePosition(id: string, x: number, y: number) {
+    setSnappables((targets) => targets.map((t) => (t.id === id ? { ...t, x, y } : t)));
+    console.log(snappables);
 }
 
-export { snapTargets };
+export { snappables };
