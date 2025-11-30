@@ -1,16 +1,15 @@
-export const ModuleType = {
+export const EngineType = {
     Oscillator: "oscillator",
     Gain: "gain",
 } as const;
 
-export type ModuleType = (typeof ModuleType)[keyof typeof ModuleType];
-
+export type EngineType = (typeof EngineType)[keyof typeof EngineType];
 export interface IAudioEngine {
     id: string;
     name: string;
     ctx: AudioContext;
     ports: Record<string, AudioNode | AudioParam>;
-    moduleType: ModuleType;
+    engineType: EngineType;
     connect(node: AudioNode | AudioParam): void;
     disconnect(): void;
 }

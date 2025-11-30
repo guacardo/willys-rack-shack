@@ -1,19 +1,19 @@
 import "./theme.scss";
 import styles from "./app.module.scss";
-import { Viewport } from "./views/viewport";
+import { Viewport } from "./views/viewport/viewport";
 import { createSignal, createEffect } from "solid-js";
 import { WebAudioProvider } from "./contexts/web-audio-context";
 import { StatusBar } from "./views/status-bar/status-bar";
-import { ModuleGroups } from "./views/module-groups/module-groups";
 import { ContextBar } from "./views/context-bar/context-bar";
-import { ModuleDetails } from "./views/module-details/module-details";
+import { EngineDetails } from "./views/engine-details/engine-details";
+import { EngineGroups } from "./views/engine-groups/engine-groups";
 import type { IAudioEngine } from "./audio/engine";
 
 function App() {
     const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
     const [isGrabbing, setIsGrabbing] = createSignal(false);
     const [theme, setTheme] = createSignal<"light" | "dark" | "neon-green">("neon-green");
-    const [currentModule, setCurrentModule] = createSignal<IAudioEngine | null>(null);
+    const [currentEngine, setCurrentEngine] = createSignal<IAudioEngine | null>(null);
 
     // Apply theme when it changes
     createEffect(() => {
@@ -24,8 +24,8 @@ function App() {
         <WebAudioProvider>
             <StatusBar theme={theme()} setTheme={setTheme} />
             <ContextBar visible={true}>
-                <ModuleGroups expanded={true} currentModule={currentModule()} setCurrentModule={setCurrentModule} />
-                <ModuleDetails module={currentModule()} />
+                <EngineGroups expanded={true} currentModule={currentEngine()} setCurrentModule={setCurrentEngine} />
+                <EngineDetails id={currentEngine()?.id} />
             </ContextBar>
 
             <div class={`${styles.app} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}>

@@ -12,7 +12,7 @@ export class OscillatorEngine implements IAudioEngine {
     ctx: AudioContext;
     osc: OscillatorNode;
     ports: OscillatorPorts;
-    moduleType = "oscillator" as const;
+    engineType = "oscillator" as const;
 
     constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
         this.id = id;

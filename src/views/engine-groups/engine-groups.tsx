@@ -1,24 +1,24 @@
 import { WUTText } from "@/components/wut/text/WUT.Text";
-import styles from "./module-groups.module.scss";
-import { ModuleType, type IAudioEngine } from "@/audio/engine";
+import styles from "./engine-groups.module.scss";
+import { EngineType, type IAudioEngine } from "@/audio/engine";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
-import { addEngine, engines } from "@/stores/engines.store";
+import { addEngine, getAllEngines } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
 
-interface ModuleGroupProps {
+interface EngineGroupProps {
     expanded: boolean;
-    currentModule: IAudioEngine | null;
-    setCurrentModule: (module: IAudioEngine) => void;
+    currentEngine: IAudioEngine | null;
+    setCurrentEngine: (engine: IAudioEngine) => void;
 }
 
-const nodeSelectOptions = Object.entries(ModuleType).map(([key, value]) => ({
+const nodeSelectOptions = Object.entries(EngineType).map(([key, value]) => ({
     label: key,
     value: value,
 }));
 
-export function ModuleGroups(props: ModuleGroupProps) {
+export function EngineGroups(props: EngineGroupProps) {
     const { audioCtx } = useWebAudioContext();
     const [selectedType, setSelectedType] = createSignal(nodeSelectOptions[0].value);
 
@@ -32,15 +32,15 @@ export function ModuleGroups(props: ModuleGroupProps) {
         <div class={`${styles["module-groups"]} ${props.expanded ? styles.visible : ""}`}>
             <WUTText variant="header">Module Groups</WUTText>
             <div>
-                <select value={selectedType()} onChange={(e) => setSelectedType(e.target.value as ModuleType)}>
+                <select value={selectedType()} onChange={(e) => setSelectedType(e.target.value as EngineType)}>
                     {nodeSelectOptions.map((option) => (
                         <option value={option.value}>{option.label}</option>
                     ))}
                 </select>
                 <button onClick={handleCreateNode}>Create Node</button>
             </div>
-            {engines().map((engine) => (
-                <div class={`${styles["module-item"]} ${props.currentModule === engine ? styles.selected : ""}`} onClick={() => props.setCurrentModule(engine)}>
+            {getAllEngines().map((engine) => (
+                <div class={`${styles["engine-item"]} ${props.currentEngine === engine ? styles.selected : ""}`} onClick={() => props.setCurrentEngine(engine)}>
                     {engine.name}
                 </div>
             ))}

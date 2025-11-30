@@ -12,7 +12,7 @@ export class GainEngine implements IAudioEngine {
     ctx: AudioContext;
     gain: GainNode;
     ports: GainPorts;
-    moduleType = "gain" as const;
+    engineType = "gain" as const;
 
     constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
         this.id = id;
