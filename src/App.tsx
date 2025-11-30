@@ -7,13 +7,12 @@ import { StatusBar } from "./views/status-bar/status-bar";
 import { ContextBar } from "./views/context-bar/context-bar";
 import { EngineDetails } from "./views/engine-details/engine-details";
 import { EngineGroups } from "./views/engine-groups/engine-groups";
-import type { IAudioEngine } from "./audio/engine";
 
 function App() {
     const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
     const [isGrabbing, setIsGrabbing] = createSignal(false);
     const [theme, setTheme] = createSignal<"light" | "dark" | "neon-green">("neon-green");
-    const [currentEngine, setCurrentEngine] = createSignal<IAudioEngine | null>(null);
+    const [currentEngineId, setCurrentEngineId] = createSignal<string | null>(null);
 
     // Apply theme when it changes
     createEffect(() => {
@@ -24,8 +23,8 @@ function App() {
         <WebAudioProvider>
             <StatusBar theme={theme()} setTheme={setTheme} />
             <ContextBar visible={true}>
-                <EngineGroups expanded={true} currentModule={currentEngine()} setCurrentModule={setCurrentEngine} />
-                <EngineDetails id={currentEngine()?.id} />
+                <EngineGroups expanded={true} currentEngineId={currentEngineId()} setCurrentEngine={setCurrentEngineId} />
+                <EngineDetails id={currentEngineId()} />
             </ContextBar>
 
             <div class={`${styles.app} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}>

@@ -1,9 +1,17 @@
-.module-groups {
+.engine-groups {
     display: flex;
     flex-direction: column;
     gap: 2px;
 
     &.expanded {
         background-color: cyan;
+    }
+
+    .engine-item {
+        border: 1px solid blue;
+
+        &.selected {
+            border: 1px solid red;
+        }
     }
 }

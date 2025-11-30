@@ -1,6 +1,6 @@
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./engine-groups.module.scss";
-import { EngineType, type IAudioEngine } from "@/audio/engine";
+import { EngineType } from "@/audio/engine";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
@@ -9,8 +9,8 @@ import { useWebAudioContext } from "@/contexts/web-audio-context";
 
 interface EngineGroupProps {
     expanded: boolean;
-    currentEngine: IAudioEngine | null;
-    setCurrentEngine: (engine: IAudioEngine) => void;
+    currentEngineId: string | null;
+    setCurrentEngine: (engineId: string | null) => void;
 }
 
 const nodeSelectOptions = Object.entries(EngineType).map(([key, value]) => ({
@@ -29,7 +29,7 @@ export function EngineGroups(props: EngineGroupProps) {
         if (newNode) addEngine(newNode);
     }
     return (
-        <div class={`${styles["module-groups"]} ${props.expanded ? styles.visible : ""}`}>
+        <div class={`${styles["engine-groups"]} ${props.expanded ? styles.visible : ""}`}>
             <WUTText variant="header">Module Groups</WUTText>
             <div>
                 <select value={selectedType()} onChange={(e) => setSelectedType(e.target.value as EngineType)}>
@@ -40,7 +40,10 @@ export function EngineGroups(props: EngineGroupProps) {
                 <button onClick={handleCreateNode}>Create Node</button>
             </div>
             {getAllEngines().map((engine) => (
-                <div class={`${styles["engine-item"]} ${props.currentEngine === engine ? styles.selected : ""}`} onClick={() => props.setCurrentEngine(engine)}>
+                <div
+                    class={`${styles["engine-item"]} ${props.currentEngineId === engine.id ? styles.selected : ""}`}
+                    onClick={() => props.setCurrentEngine(engine.id)}
+                >
                     {engine.name}
                 </div>
             ))}

@@ -20,6 +20,7 @@ export function removeEngine(engine: IAudioEngine) {
 }
 
 export function getEngineById(id: string): IAudioEngine | undefined {
+    console.log("Getting engine by ID:", id);
     return engines().get(id);
 }
 

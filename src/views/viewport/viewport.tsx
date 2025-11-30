@@ -2,7 +2,7 @@ import { createSignal, onCleanup } from "solid-js";
 import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { Gain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
-import { engines } from "@/stores/engines.store";
+import { getAllEngines } from "@/stores/engines.store";
 import { isGainEngine } from "@/audio/gain.engine";
 import { isOscillatorEngine } from "@/audio/oscillator.engine";
 
@@ -112,7 +112,7 @@ export function Viewport(props: ViewportProps) {
                 "transform-origin": "0 0",
             }}
         >
-            {engines().map((engine, index) => {
+            {getAllEngines().map((engine, index) => {
                 if (isOscillatorEngine(engine)) {
                     return (
                         <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
