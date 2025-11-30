@@ -8,7 +8,7 @@ export interface WAKOscillatorProps {
     engine: OscillatorEngine;
 }
 
-export function Oscillator({ engine }: WAKOscillatorProps) {
+export function WAKOscillator({ engine }: WAKOscillatorProps) {
     // Poll oscillator values for reactivity
     const [actualFreq, setActualFreq] = createSignal(engine.getFrequency());
     const [actualDetune, setActualDetune] = createSignal(engine.getDetune());

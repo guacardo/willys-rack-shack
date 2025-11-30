@@ -8,7 +8,7 @@ export interface WAKGainProps {
     engine: GainEngine;
 }
 
-export function Gain({ engine }: WAKGainProps) {
+export function WAKGain({ engine }: WAKGainProps) {
     const [gain, setGain] = createSignal(engine.getGain());
 
     // Poll actual gain value (for modulation)

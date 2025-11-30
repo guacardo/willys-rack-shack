@@ -1,6 +1,6 @@
 import { createSignal, onCleanup } from "solid-js";
-import { Oscillator } from "@/components/wak/oscillator/WAK.Oscillator";
-import { Gain } from "@/components/wak/gain/WAK.Gain";
+import { WAKOscillator } from "@/components/wak/oscillator/WAK.Oscillator";
+import { WAKGain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
 import { getAllEngines } from "@/stores/engines.store";
 import { isGainEngine } from "@/audio/gain.engine";
@@ -116,16 +116,17 @@ export function Viewport(props: ViewportProps) {
                 if (isOscillatorEngine(engine)) {
                     return (
                         <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
-                            <Oscillator engine={engine} />
+                            <WAKOscillator engine={engine} />
                         </Snappable>
                     );
-                }
-                if (isGainEngine(engine)) {
+                } else if (isGainEngine(engine)) {
                     return (
                         <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
-                            <Gain engine={engine} />
+                            <WAKGain engine={engine} />
                         </Snappable>
                     );
+                } else {
+                    console.warn("Unknown engine type in Viewport:", engine);
                 }
                 return null;
             })}
