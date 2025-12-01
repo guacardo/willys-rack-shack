@@ -24,7 +24,7 @@ export function EngineDetails(props: EngineDetailsProps) {
                     <WUTInput
                         type="text"
                         value={engine()!.name}
-                        onInput={(e: InputEvent) => updateEngine(engine()!.id, (engine) => ({ ...engine, name: (e.target as HTMLInputElement).value }))}
+                        onInput={(e: InputEvent) => updateEngine(engine()!.id, { name: (e.target as HTMLInputElement).value })}
                     />
                     {engine()!.engineType === "oscillator" && <WAKOscillator engine={engine()! as OscillatorEngine} />}
                     {engine()!.engineType === "gain" && <WAKGain engine={engine()! as GainEngine} />}

@@ -28,13 +28,13 @@ export function getAllEngines(): IAudioEngine[] {
     return Array.from(engines().values());
 }
 
-export function updateEngine(id: string, updater: (engine: IAudioEngine) => void) {
+export function updateEngine(id: string, updates: Partial<IAudioEngine>) {
     setEngines((prev) => {
         const next = new Map(prev);
         const current = next.get(id);
         if (current) {
-            updater(current); // mutate the instance
-            next.set(id, current); // re-set the same instance
+            const updated = current.update(updates);
+            next.set(id, updated);
         }
         return next;
     });

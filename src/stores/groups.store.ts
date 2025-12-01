@@ -27,4 +27,8 @@ export function deleteGroup(groupId: string) {
     setGroups(groups.filter((g) => g.id !== groupId));
 }
 
+export function getAllGroups(): Group[] {
+    return groups;
+}
+
 export { groups, setGroups };

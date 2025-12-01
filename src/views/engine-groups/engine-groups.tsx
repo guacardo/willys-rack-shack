@@ -6,6 +6,7 @@ import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
 import { addEngine, getAllEngines } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
+import { createGroup, getAllGroups } from "@/stores/groups.store";
 
 interface EngineGroupProps {
     expanded: boolean;
@@ -28,6 +29,13 @@ export function EngineGroups(props: EngineGroupProps) {
         if (selectedType() === "gain") newNode = new GainEngine(audioCtx);
         if (newNode) addEngine(newNode);
     }
+
+    function handleCreateGroup() {
+        console.log("create group");
+        const groupId = createGroup("New Group");
+        console.log("Created group with ID:", groupId);
+    }
+
     return (
         <div class={`${styles["engine-groups"]} ${props.expanded ? styles.visible : ""}`}>
             <WUTText variant="header">Module Groups</WUTText>
@@ -38,7 +46,15 @@ export function EngineGroups(props: EngineGroupProps) {
                     ))}
                 </select>
                 <button onClick={handleCreateNode}>Create Node</button>
+                <button onClick={handleCreateGroup}>Create Group</button>
             </div>
+            {getAllGroups().map((group) => (
+                <div class={styles["group-item"]}>
+                    <WUTText variant="subheader">{group.name}</WUTText>
+                    <WUTText variant="body">Members: {group.members.length}</WUTText>
+                </div>
+            ))}
+            <WUTText variant="header">Engines</WUTText>
             {getAllEngines().map((engine) => (
                 <div
                     class={`${styles["engine-item"]} ${props.currentEngineId === engine.id ? styles.selected : ""}`}

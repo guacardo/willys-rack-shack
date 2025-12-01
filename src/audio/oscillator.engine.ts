@@ -29,16 +29,17 @@ export class OscillatorEngine implements IAudioEngine {
         };
     }
 
-    setName(name: string): void {
-        this.name = name;
+    setAudioParams(props: Partial<{ frequency: number | [number, number]; detune: number | [number, number]; type: OscillatorType }>) {
+        updateAudioParamValue(this.ctx, this.osc, props);
+    }
+
+    update(updates: Partial<this>): this {
+        Object.assign(this, updates);
+        return this;
     }
 
     getName(): string {
         return this.name;
-    }
-
-    setProps(props: Partial<{ frequency: number | [number, number]; detune: number | [number, number]; type: OscillatorType }>) {
-        updateAudioParamValue(this.ctx, this.osc, props);
     }
 
     getFrequency() {

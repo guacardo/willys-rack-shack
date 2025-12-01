@@ -1,4 +1,4 @@
-import type { IAudioEngine } from "./engine";
+import { updateAudioParamValue, type IAudioEngine } from "./engine";
 
 type GainPorts = {
     input: GainNode;
@@ -27,8 +27,13 @@ export class GainEngine implements IAudioEngine {
         };
     }
 
-    setGain(value: number): void {
-        this.ports.gain.value = value;
+    setAudioParams(props: Partial<{ gain: number | [number, number] }>) {
+        updateAudioParamValue(this.ctx, this.gain, props);
+    }
+
+    update(updates: Partial<this>): this {
+        Object.assign(this, updates);
+        return this;
     }
 
     getGain(): number {

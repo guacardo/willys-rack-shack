@@ -33,7 +33,7 @@ export function WAKOscillator({ engine }: WAKOscillatorProps) {
                 value = Number(rawValue);
                 break;
         }
-        engine.setProps({ [key]: value });
+        engine.setAudioParams({ [key]: value });
     };
 
     return (
