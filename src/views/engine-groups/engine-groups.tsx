@@ -35,6 +35,38 @@ function GroupedEngineItem(props: { engineId: string; groupId: string }) {
     );
 }
 
+function UngroupedEngineItem(props: { engineId: string; setCurrentEngine: (engineId: string | null) => void; currentEngineId: string | null }) {
+    const [selectedGroupId, setSelectedGroupId] = createSignal<string>("");
+
+    return (
+        <div
+            class={`${styles["engine-item"]} ${props.currentEngineId === props.engineId ? styles.selected : ""}`}
+            onClick={() => props.setCurrentEngine(props.engineId)}
+        >
+            {getEngineById(props.engineId)?.name}
+            <select value={selectedGroupId()} onChange={(e) => setSelectedGroupId(e.target.value)}>
+                <option value="" disabled>
+                    Add to group...
+                </option>
+                {getAllGroups().map((group) => (
+                    <option value={group.id}>{group.name}</option>
+                ))}
+            </select>
+            <button
+                onClick={() => {
+                    if (selectedGroupId()) {
+                        addMember(selectedGroupId(), props.engineId);
+                        setSelectedGroupId(""); // Optionally reset after adding
+                    }
+                }}
+                disabled={!selectedGroupId()}
+            >
+                +
+            </button>
+        </div>
+    );
+}
+
 export function EngineGroups(props: EngineGroupProps) {
     const { audioCtx } = useWebAudioContext();
     const [selectedType, setSelectedType] = createSignal(nodeSelectOptions[0].value);
@@ -72,27 +104,19 @@ export function EngineGroups(props: EngineGroupProps) {
                 </div>
             ))}
             <WUTText variant="header">Engines</WUTText>
-            {getAllEngines().map((engine) => (
-                <div
-                    class={`${styles["engine-item"]} ${props.currentEngineId === engine.id ? styles.selected : ""}`}
-                    onClick={() => props.setCurrentEngine(engine.id)}
-                >
-                    {engine.name}
-                    <select
-                        onChange={(e) => {
-                            const groupId = e.target.value;
-                            addMember(groupId, engine.id);
-                        }}
-                    >
-                        <option value="" disabled>
-                            Add to group...
-                        </option>
-                        {getAllGroups().map((group) => (
-                            <option value={group.id}>{group.name}</option>
-                        ))}
-                    </select>
-                </div>
-            ))}
+            {(() => {
+                // Collect all engine IDs that are members of any group
+                const groupedEngineIds = new Set<string>();
+                getAllGroups().forEach((group) => {
+                    group.members.forEach((id) => groupedEngineIds.add(id));
+                });
+                // Filter out engines that are in any group
+                return getAllEngines()
+                    .filter((engine) => !groupedEngineIds.has(engine.id))
+                    .map((engine) => (
+                        <UngroupedEngineItem engineId={engine.id} setCurrentEngine={props.setCurrentEngine} currentEngineId={props.currentEngineId} />
+                    ));
+            })()}
         </div>
     );
 }
