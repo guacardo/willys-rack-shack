@@ -6,7 +6,7 @@ import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
 import { addEngine, getAllEngines } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
-import { createGroup, getAllGroups } from "@/stores/groups.store";
+import { createGroup, getAllGroups, addMember } from "@/stores/groups.store";
 
 interface EngineGroupProps {
     expanded: boolean;
@@ -31,9 +31,7 @@ export function EngineGroups(props: EngineGroupProps) {
     }
 
     function handleCreateGroup() {
-        console.log("create group");
-        const groupId = createGroup("New Group");
-        console.log("Created group with ID:", groupId);
+        createGroup("New Group");
     }
 
     return (
@@ -52,6 +50,10 @@ export function EngineGroups(props: EngineGroupProps) {
                 <div class={styles["group-item"]}>
                     <WUTText variant="subheader">{group.name}</WUTText>
                     <WUTText variant="body">Members: {group.members.length}</WUTText>
+                    {group.members.map((memberId) => {
+                        const engine = getAllEngines().find((e) => e.id === memberId);
+                        return engine ? <WUTText variant="body">- {engine.name}</WUTText> : null;
+                    })}
                 </div>
             ))}
             <WUTText variant="header">Engines</WUTText>
@@ -61,6 +63,19 @@ export function EngineGroups(props: EngineGroupProps) {
                     onClick={() => props.setCurrentEngine(engine.id)}
                 >
                     {engine.name}
+                    <select
+                        onChange={(e) => {
+                            const groupId = e.target.value;
+                            addMember(groupId, engine.id);
+                        }}
+                    >
+                        <option value="" disabled>
+                            Add to group...
+                        </option>
+                        {getAllGroups().map((group) => (
+                            <option value={group.id}>{group.name}</option>
+                        ))}
+                    </select>
                 </div>
             ))}
         </div>

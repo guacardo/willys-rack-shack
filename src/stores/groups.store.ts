@@ -16,7 +16,7 @@ export function createGroup(name: string, members: string[] = []) {
 }
 
 export function addMember(groupId: string, memberId: string) {
-    setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: [...g.members, memberId] } : g)));
+    setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.includes(memberId) ? g.members : [...g.members, memberId] } : g)));
 }
 
 export function removeMember(groupId: string, memberId: string) {
