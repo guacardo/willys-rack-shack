@@ -9,23 +9,20 @@ export interface WAKGainProps {
 }
 
 export function WAKGain({ engine }: WAKGainProps) {
-    const [gain, setGain] = createSignal(engine.getGain());
-
-    // Poll actual gain value (for modulation)
     const [actualGain, setActualGain] = createSignal(engine.getGain());
+
     const poller = setInterval(() => setActualGain(engine.getGain()), 30);
     onCleanup(() => clearInterval(poller));
 
     const handleGainChange = (e: Event) => {
-        const value = +(e.target as HTMLInputElement).value;
-        setGain(value);
-        engine.setGain(value);
+        const value = Number((e.target as HTMLInputElement).value);
+        engine.setAudioParams({ gain: value });
     };
 
     return (
         <div class={styles.gain}>
             <WUTText variant="label">Gain</WUTText>
-            <WUTInput type="range" min="0" max="2" step="0.01" value={gain().toString()} onInput={handleGainChange} />
+            <WUTInput type="range" min="0" max="2" step="0.01" value={actualGain().toString()} onInput={handleGainChange} />
             <WUTText variant="number">Actual Gain: {actualGain().toFixed(2)}</WUTText>
         </div>
     );
