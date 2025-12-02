@@ -31,4 +31,9 @@ export function getAllGroups(): Group[] {
     return groups;
 }
 
+export function getMembersOfGroup(groupId: string): string[] {
+    const group = groups.find((g) => g.id === groupId);
+    return group ? group.members : [];
+}
+
 export { groups, setGroups };

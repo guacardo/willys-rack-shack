@@ -4,14 +4,13 @@ import { EngineType } from "@/audio/engine";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
-import { addEngine, getAllEngines, getEngineById } from "@/stores/engines.store";
+import { addEngine, getEngineById, getUngroupedEngines } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
-import { createGroup, getAllGroups, addMember, removeMember } from "@/stores/groups.store";
+import { createGroup, getAllGroups, addMember, removeMember, getMembersOfGroup } from "@/stores/groups.store";
+import { isSelected, selectItem } from "@/stores/selection.store";
 
 interface EngineGroupProps {
     expanded: boolean;
-    currentEngineId: string | null;
-    setCurrentEngine: (engineId: string | null) => void;
 }
 
 const nodeSelectOptions = Object.entries(EngineType).map(([key, value]) => ({
@@ -19,16 +18,13 @@ const nodeSelectOptions = Object.entries(EngineType).map(([key, value]) => ({
     value: value,
 }));
 
-function GroupedEngineItem(props: { engineId: string; groupId: string; setCurrentEngine: (engineId: string | null) => void; currentEngineId: string | null }) {
-    // Call getEngineById directly in the JSX so it re-runs when the store updates
+function GroupedEngineItem(props: { engineId: string; groupId: string; onClick?: () => void; selected: boolean }) {
     return (
-        <div
-            class={`${styles["grouped-engine-item"]} ${props.currentEngineId === props.engineId ? styles.selected : ""}`}
-            onClick={() => props.setCurrentEngine(props.engineId)}
-        >
+        <div class={`${styles["grouped-engine-item"]} ${props.selected ? styles.selected : ""}`} onClick={props.onClick}>
             <WUTText variant="body">{getEngineById(props.engineId)?.name}</WUTText>
             <button
                 onClick={() => {
+                    console.log("removeing member", props.engineId, "from group", props.groupId);
                     removeMember(props.groupId, props.engineId);
                 }}
             >
@@ -38,14 +34,11 @@ function GroupedEngineItem(props: { engineId: string; groupId: string; setCurren
     );
 }
 
-function UngroupedEngineItem(props: { engineId: string; setCurrentEngine: (engineId: string | null) => void; currentEngineId: string | null }) {
+function UngroupedEngineItem(props: { engineId: string; onClick?: () => void; selected: boolean }) {
     const [selectedGroupId, setSelectedGroupId] = createSignal<string>("");
 
     return (
-        <div
-            class={`${styles["engine-item"]} ${props.currentEngineId === props.engineId ? styles.selected : ""}`}
-            onClick={() => props.setCurrentEngine(props.engineId)}
-        >
+        <div class={`${styles["engine-item"]} ${props.selected ? styles.selected : ""}`} onClick={props.onClick}>
             {getEngineById(props.engineId)?.name}
             <select value={selectedGroupId()} onChange={(e) => setSelectedGroupId(e.target.value)}>
                 <option value="" disabled>
@@ -101,32 +94,22 @@ export function EngineGroups(props: EngineGroupProps) {
                 <div class={styles["group-item"]}>
                     <WUTText variant="subheader">{group.name}</WUTText>
                     <WUTText variant="body">Members: {group.members.length}</WUTText>
-                    {group.members.map((memberId) => {
+                    {getMembersOfGroup(group.id).map((memberId) => {
                         return (
                             <GroupedEngineItem
                                 engineId={memberId}
                                 groupId={group.id}
-                                setCurrentEngine={props.setCurrentEngine}
-                                currentEngineId={props.currentEngineId}
+                                selected={isSelected("engine", memberId)}
+                                onClick={() => selectItem("engine", memberId)}
                             />
                         );
                     })}
                 </div>
             ))}
             <WUTText variant="header">Engines</WUTText>
-            {(() => {
-                // Collect all engine IDs that are members of any group
-                const groupedEngineIds = new Set<string>();
-                getAllGroups().forEach((group) => {
-                    group.members.forEach((id) => groupedEngineIds.add(id));
-                });
-                // Filter out engines that are in any group
-                return getAllEngines()
-                    .filter((engine) => !groupedEngineIds.has(engine.id))
-                    .map((engine) => (
-                        <UngroupedEngineItem engineId={engine.id} setCurrentEngine={props.setCurrentEngine} currentEngineId={props.currentEngineId} />
-                    ));
-            })()}
+            {getUngroupedEngines().map((engine) => (
+                <UngroupedEngineItem engineId={engine.id} selected={isSelected("engine", engine.id)} onClick={() => selectItem("engine", engine.id)} />
+            ))}
         </div>
     );
 }

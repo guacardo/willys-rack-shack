@@ -1,5 +1,6 @@
-import { createSignal } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
 import type { IAudioEngine } from "@/audio/engine";
+import { getAllGroups } from "./groups.store";
 
 const [engines, setEngines] = createSignal<Map<string, IAudioEngine>>(new Map());
 
@@ -38,5 +39,10 @@ export function updateEngine(id: string, updates: Partial<IAudioEngine>) {
         return next;
     });
 }
+
+export const getUngroupedEngines = createMemo(() => {
+    const groupedIds = new Set(getAllGroups().flatMap((group) => group.members));
+    return getAllEngines().filter((engine) => !groupedIds.has(engine.id));
+});
 
 export { engines, setEngines };

@@ -2,17 +2,18 @@ import { createSignal, onCleanup } from "solid-js";
 import { WAKOscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { WAKGain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
-import { getAllEngines } from "@/stores/engines.store";
+import { getEngineById, getUngroupedEngines } from "@/stores/engines.store";
 import { isGainEngine } from "@/audio/gain.engine";
 import { isOscillatorEngine } from "@/audio/oscillator.engine";
+import { selectItem, isSelected, type SelectionType } from "@/stores/selection.store";
+
 import styles from "./viewport.module.scss";
+import { getAllGroups, getMembersOfGroup } from "@/stores/groups.store";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
     isSpaceHeld: boolean;
     setIsGrabbing: (grabbing: boolean) => void;
-    currentEngineId: string | null;
-    setCurrentEngine: (id: string | null) => void;
 }
 
 export function Viewport(props: ViewportProps) {
@@ -101,8 +102,8 @@ export function Viewport(props: ViewportProps) {
         window.removeEventListener("wheel", onWheel as EventListener);
     });
 
-    const borderColor = (engineId: string) => {
-        if (engineId === props.currentEngineId) {
+    const borderColor = (selectionType: SelectionType, engineId: string) => {
+        if (isSelected(selectionType, engineId)) {
             return "yellow";
         }
         return "transparent";
@@ -117,7 +118,30 @@ export function Viewport(props: ViewportProps) {
                 transform: `scale(${scale()})`,
             }}
         >
-            {getAllEngines().map((engine, index) => {
+            {/* Render groups */}
+            {getAllGroups().map((group, groupIndex) => (
+                <Snappable
+                    id={group.id}
+                    initial={{ x: 100 + groupIndex * 300, y: 100 }}
+                    getScale={scale}
+                    isSpaceHeld={props.isSpaceHeld}
+                    borderColor={isSelected("group", group.id) ? "#4f8cff" : undefined}
+                    onClick={() => selectItem("group", group.id)}
+                >
+                    <div class={styles.group}>
+                        {getMembersOfGroup(group.id).map((engineId) => {
+                            const engine = getEngineById(engineId);
+                            if (isOscillatorEngine(engine)) {
+                                return <WAKOscillator engine={engine} />;
+                            } else if (isGainEngine(engine)) {
+                                return <WAKGain engine={engine} />;
+                            }
+                            return null;
+                        })}
+                    </div>
+                </Snappable>
+            ))}
+            {getUngroupedEngines().map((engine, index) => {
                 if (isOscillatorEngine(engine)) {
                     return (
                         <Snappable
@@ -125,8 +149,8 @@ export function Viewport(props: ViewportProps) {
                             initial={{ x: 200 + index * 150, y: 200 }}
                             getScale={scale}
                             isSpaceHeld={props.isSpaceHeld}
-                            borderColor={borderColor(engine.id)}
-                            onClick={() => props.setCurrentEngine(engine.id)}
+                            borderColor={borderColor("engine", engine.id)}
+                            onClick={() => selectItem("engine", engine.id)}
                         >
                             <WAKOscillator engine={engine} />
                         </Snappable>
@@ -138,8 +162,8 @@ export function Viewport(props: ViewportProps) {
                             initial={{ x: 200 + index * 150, y: 200 }}
                             getScale={scale}
                             isSpaceHeld={props.isSpaceHeld}
-                            borderColor={borderColor(engine.id)}
-                            onClick={() => props.setCurrentEngine(engine.id)}
+                            borderColor={borderColor("engine", engine.id)}
+                            onClick={() => selectItem("engine", engine.id)}
                         >
                             <WAKGain engine={engine} />
                         </Snappable>
