@@ -6,12 +6,8 @@
     &.expanded {
         background-color: cyan;
     }
+}
 
-    .engine-item {
-        border: 1px solid blue;
-
-        &.selected {
-            border: 1px solid red;
-        }
-    }
+.selected {
+    border: 1px solid red;
 }

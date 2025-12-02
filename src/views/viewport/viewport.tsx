@@ -5,11 +5,14 @@ import { Snappable } from "@/components/ui/snappable/snappable";
 import { getAllEngines } from "@/stores/engines.store";
 import { isGainEngine } from "@/audio/gain.engine";
 import { isOscillatorEngine } from "@/audio/oscillator.engine";
+import styles from "./viewport.module.scss";
 
 interface ViewportProps {
     setIsSpaceHeld: (held: boolean) => void;
     isSpaceHeld: boolean;
     setIsGrabbing: (grabbing: boolean) => void;
+    currentEngineId: string | null;
+    setCurrentEngine: (id: string | null) => void;
 }
 
 export function Viewport(props: ViewportProps) {
@@ -98,30 +101,46 @@ export function Viewport(props: ViewportProps) {
         window.removeEventListener("wheel", onWheel as EventListener);
     });
 
+    const borderColor = (engineId: string) => {
+        if (engineId === props.currentEngineId) {
+            return "yellow";
+        }
+        return "transparent";
+    };
+
     return (
         <div
+            class={styles.viewport}
             style={{
-                position: "absolute",
                 left: `${pan().x}px`,
                 top: `${pan().y}px`,
-                width: "100vw",
-                height: "100vh",
-                overflow: "visible",
-                "z-index": 100,
                 transform: `scale(${scale()})`,
-                "transform-origin": "0 0",
             }}
         >
             {getAllEngines().map((engine, index) => {
                 if (isOscillatorEngine(engine)) {
                     return (
-                        <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                        <Snappable
+                            id={engine.id}
+                            initial={{ x: 200 + index * 150, y: 200 }}
+                            getScale={scale}
+                            isSpaceHeld={props.isSpaceHeld}
+                            borderColor={borderColor(engine.id)}
+                            onClick={() => props.setCurrentEngine(engine.id)}
+                        >
                             <WAKOscillator engine={engine} />
                         </Snappable>
                     );
                 } else if (isGainEngine(engine)) {
                     return (
-                        <Snappable id={engine.id} initial={{ x: 200 + index * 150, y: 200 }} getScale={scale} isSpaceHeld={props.isSpaceHeld}>
+                        <Snappable
+                            id={engine.id}
+                            initial={{ x: 200 + index * 150, y: 200 }}
+                            getScale={scale}
+                            isSpaceHeld={props.isSpaceHeld}
+                            borderColor={borderColor(engine.id)}
+                            onClick={() => props.setCurrentEngine(engine.id)}
+                        >
                             <WAKGain engine={engine} />
                         </Snappable>
                     );

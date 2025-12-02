@@ -1,19 +1,21 @@
 import { createSignal, createEffect } from "solid-js";
 import { Draggable } from "@/components/ui/draggable/draggable";
-import { updatePosition, snappables, registerSnappable } from "@/stores/snappables.store";
+import { updatePosition, snappablesState, registerSnappable } from "@/stores/snappables.store";
 
 interface SnappableProps {
     id: string;
     initial: { x: number; y: number };
     getScale?: () => number;
     isSpaceHeld?: boolean;
+    borderColor?: string;
     children?: any;
+    onClick?: () => void;
 }
 
 export function Snappable(props: SnappableProps) {
     // Find existing position in store by id, or register if not present
     let initialPosition = props.initial;
-    let existingSnap = snappables.find((t) => t.id === props.id);
+    let existingSnap = snappablesState.snappables.find((t) => t.id === props.id);
     if (!existingSnap) {
         // Register snappable if not present
         registerSnappable({
@@ -30,7 +32,7 @@ export function Snappable(props: SnappableProps) {
 
     // Reactively update position from store
     createEffect(() => {
-        const snap = snappables.find((t) => t.id === props.id);
+        const snap = snappablesState.snappables.find((t) => t.id === props.id);
         if (snap) setPosition({ x: snap.x, y: snap.y });
     });
 
@@ -40,8 +42,10 @@ export function Snappable(props: SnappableProps) {
     }
 
     return (
-        <Draggable initial={position()} getScale={props.getScale} isSpaceHeld={props.isSpaceHeld} onDragEnd={handleDragEnd}>
-            {props.children}
-        </Draggable>
+        <div onClick={props.onClick}>
+            <Draggable initial={position()} getScale={props.getScale} isSpaceHeld={props.isSpaceHeld} onDragEnd={handleDragEnd} borderColor={props.borderColor}>
+                {props.children}
+            </Draggable>
+        </div>
     );
 }

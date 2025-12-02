@@ -19,10 +19,13 @@ const nodeSelectOptions = Object.entries(EngineType).map(([key, value]) => ({
     value: value,
 }));
 
-function GroupedEngineItem(props: { engineId: string; groupId: string }) {
+function GroupedEngineItem(props: { engineId: string; groupId: string; setCurrentEngine: (engineId: string | null) => void; currentEngineId: string | null }) {
     // Call getEngineById directly in the JSX so it re-runs when the store updates
     return (
-        <div class={styles["grouped-engine-item"]}>
+        <div
+            class={`${styles["grouped-engine-item"]} ${props.currentEngineId === props.engineId ? styles.selected : ""}`}
+            onClick={() => props.setCurrentEngine(props.engineId)}
+        >
             <WUTText variant="body">{getEngineById(props.engineId)?.name}</WUTText>
             <button
                 onClick={() => {
@@ -99,7 +102,14 @@ export function EngineGroups(props: EngineGroupProps) {
                     <WUTText variant="subheader">{group.name}</WUTText>
                     <WUTText variant="body">Members: {group.members.length}</WUTText>
                     {group.members.map((memberId) => {
-                        return <GroupedEngineItem engineId={memberId} groupId={group.id} />;
+                        return (
+                            <GroupedEngineItem
+                                engineId={memberId}
+                                groupId={group.id}
+                                setCurrentEngine={props.setCurrentEngine}
+                                currentEngineId={props.currentEngineId}
+                            />
+                        );
                     })}
                 </div>
             ))}

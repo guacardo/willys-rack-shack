@@ -28,7 +28,13 @@ function App() {
             </ContextBar>
 
             <div class={`${styles.app} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}>
-                <Viewport setIsSpaceHeld={setIsSpaceHeld} isSpaceHeld={isSpaceHeld()} setIsGrabbing={setIsGrabbing} />
+                <Viewport
+                    setIsSpaceHeld={setIsSpaceHeld}
+                    isSpaceHeld={isSpaceHeld()}
+                    setIsGrabbing={setIsGrabbing}
+                    currentEngineId={currentEngineId()}
+                    setCurrentEngine={setCurrentEngineId}
+                />
             </div>
         </WebAudioProvider>
     );

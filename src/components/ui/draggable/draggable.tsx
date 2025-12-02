@@ -6,6 +6,7 @@ interface DraggableProps {
     getScale?: () => number;
     isSpaceHeld?: boolean;
     onDragEnd?: (pos: { x: number; y: number }) => void;
+    borderColor?: string;
     children: JSX.Element;
 }
 
@@ -51,6 +52,7 @@ export function Draggable(props: DraggableProps) {
             style={{
                 left: `${pos().x}px`,
                 top: `${pos().y}px`,
+                "border-color": props.borderColor || "transparent",
             }}
             onMouseDown={onMouseDown}
         >
