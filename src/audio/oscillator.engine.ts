@@ -34,8 +34,13 @@ export class OscillatorEngine implements IAudioEngine {
     }
 
     update(updates: Partial<this>): this {
-        Object.assign(this, updates);
-        return this;
+        // Create a new instance with the same prototype
+        const newEngine = Object.create(Object.getPrototypeOf(this));
+        // Copy all properties from current instance
+        Object.assign(newEngine, this);
+        // Apply updates
+        Object.assign(newEngine, updates);
+        return newEngine;
     }
 
     getName(): string {

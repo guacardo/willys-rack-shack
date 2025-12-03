@@ -102,7 +102,7 @@ export function Viewport() {
                 transform: `scale(${scale()})`,
             }}
         >
-            {/* Render groups */}
+            {/* GROUPED ENGINES */}
             {getAllGroups().map((group, groupIndex) => (
                 <Snappable
                     id={group.id}
@@ -125,6 +125,7 @@ export function Viewport() {
                     </div>
                 </Snappable>
             ))}
+            {/* UNGROUPED ENGINES */}
             {getUngroupedEngines().map((engine) => {
                 if (isOscillatorEngine(engine)) {
                     return <WAKOscillator id={engine.id} />;
