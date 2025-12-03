@@ -31,7 +31,6 @@ export function unregisterSnappable(id: string) {
 
 export function updatePosition(id: string, x: number, y: number) {
     setState("snappables", (targets) => targets.map((t) => (t.id === id ? { ...t, x, y } : t)));
-    console.log(state.snappables);
 }
 
 export function selectSnappable(id: string) {

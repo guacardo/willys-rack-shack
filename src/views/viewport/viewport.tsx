@@ -5,42 +5,31 @@ import { Snappable } from "@/components/ui/snappable/snappable";
 import { getEngineById, getUngroupedEngines } from "@/stores/engines.store";
 import { isGainEngine } from "@/audio/gain.engine";
 import { isOscillatorEngine } from "@/audio/oscillator.engine";
-import { selectItem, isSelected, type SelectionType } from "@/stores/selection.store";
-
-import styles from "./viewport.module.scss";
+import { selectItem, isSelected } from "@/stores/selection.store";
 import { getAllGroups, getMembersOfGroup } from "@/stores/groups.store";
 
-interface ViewportProps {
-    setIsSpaceHeld: (held: boolean) => void;
-    isSpaceHeld: boolean;
-    setIsGrabbing: (grabbing: boolean) => void;
-}
+import styles from "./viewport.module.scss";
 
-export function Viewport(props: ViewportProps) {
+export function Viewport() {
+    const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
+    const [isGrabbing, setIsGrabbing] = createSignal(false);
     const [pan, setPan] = createSignal<{ x: number; y: number }>({ x: 0, y: 0 });
     const [scale, setScale] = createSignal<number>(1);
 
     // Listen for spacebar keydown/keyup globally
     const onKeyDown = (e: KeyboardEvent) => {
-        if (e.code === "Space") props.setIsSpaceHeld(true);
+        if (e.code === "Space") setIsSpaceHeld(true);
     };
     const onKeyUp = (e: KeyboardEvent) => {
-        if (e.code === "Space") props.setIsSpaceHeld(false);
+        if (e.code === "Space") setIsSpaceHeld(false);
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    onCleanup(() => {
-        window.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("keyup", onKeyUp);
-    });
-
-    // Pan logic (global mousedown listener)
+    // Pan
     const onViewportMouseDown = (e: MouseEvent) => {
         if (e.button !== 0) return;
-        if (!props.isSpaceHeld) return;
+        if (!isSpaceHeld()) return;
 
-        props.setIsGrabbing(true);
+        setIsGrabbing(true);
         const startX = e.clientX;
         const startY = e.clientY;
         const origPan = pan();
@@ -57,18 +46,13 @@ export function Viewport(props: ViewportProps) {
             "mouseup",
             () => {
                 window.removeEventListener("mousemove", onMouseMove);
-                props.setIsGrabbing(false);
+                setIsGrabbing(false);
             },
             { once: true }
         );
     };
 
-    window.addEventListener("mousedown", onViewportMouseDown);
-    onCleanup(() => {
-        window.removeEventListener("mousedown", onViewportMouseDown);
-    });
-
-    // Zoom logic (global wheel listener, zoom from mouse position)
+    // Zoom
     const onWheel = (e: WheelEvent) => {
         e.preventDefault();
         const zoomFactor = 0.1;
@@ -97,21 +81,21 @@ export function Viewport(props: ViewportProps) {
         setPan({ x: newPanX, y: newPanY });
     };
 
-    window.addEventListener("wheel", onWheel as EventListener, { passive: false });
-    onCleanup(() => {
-        window.removeEventListener("wheel", onWheel as EventListener);
-    });
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("mousedown", onViewportMouseDown);
+    window.addEventListener("wheel", onWheel, { passive: false });
 
-    const borderColor = (selectionType: SelectionType, engineId: string) => {
-        if (isSelected(selectionType, engineId)) {
-            return "yellow";
-        }
-        return "transparent";
-    };
+    onCleanup(() => {
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+        window.removeEventListener("mousedown", onViewportMouseDown);
+        window.removeEventListener("wheel", onWheel);
+    });
 
     return (
         <div
-            class={styles.viewport}
+            class={`${styles.viewport} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}
             style={{
                 left: `${pan().x}px`,
                 top: `${pan().y}px`,
@@ -124,7 +108,7 @@ export function Viewport(props: ViewportProps) {
                     id={group.id}
                     initial={{ x: 100 + groupIndex * 300, y: 100 }}
                     getScale={scale}
-                    isSpaceHeld={props.isSpaceHeld}
+                    isSpaceHeld={isSpaceHeld()}
                     borderColor={isSelected("group", group.id) ? "#4f8cff" : undefined}
                     onClick={() => selectItem("group", group.id)}
                 >
@@ -132,42 +116,20 @@ export function Viewport(props: ViewportProps) {
                         {getMembersOfGroup(group.id).map((engineId) => {
                             const engine = getEngineById(engineId);
                             if (isOscillatorEngine(engine)) {
-                                return <WAKOscillator engine={engine} />;
+                                return <WAKOscillator id={engine.id} />;
                             } else if (isGainEngine(engine)) {
-                                return <WAKGain engine={engine} />;
+                                return <WAKGain id={engine.id} />;
                             }
                             return null;
                         })}
                     </div>
                 </Snappable>
             ))}
-            {getUngroupedEngines().map((engine, index) => {
+            {getUngroupedEngines().map((engine) => {
                 if (isOscillatorEngine(engine)) {
-                    return (
-                        <Snappable
-                            id={engine.id}
-                            initial={{ x: 200 + index * 150, y: 200 }}
-                            getScale={scale}
-                            isSpaceHeld={props.isSpaceHeld}
-                            borderColor={borderColor("engine", engine.id)}
-                            onClick={() => selectItem("engine", engine.id)}
-                        >
-                            <WAKOscillator engine={engine} />
-                        </Snappable>
-                    );
+                    return <WAKOscillator id={engine.id} />;
                 } else if (isGainEngine(engine)) {
-                    return (
-                        <Snappable
-                            id={engine.id}
-                            initial={{ x: 200 + index * 150, y: 200 }}
-                            getScale={scale}
-                            isSpaceHeld={props.isSpaceHeld}
-                            borderColor={borderColor("engine", engine.id)}
-                            onClick={() => selectItem("engine", engine.id)}
-                        >
-                            <WAKGain engine={engine} />
-                        </Snappable>
-                    );
+                    return <WAKGain id={engine.id} />;
                 } else {
                     console.warn("Unknown engine type in Viewport:", engine);
                 }

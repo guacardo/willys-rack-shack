@@ -6,3 +6,10 @@
     z-index: 100;
     transform-origin: 0 0;
 }
+
+.grab {
+    cursor: grab !important;
+}
+.grabbing {
+    cursor: grabbing !important;
+}

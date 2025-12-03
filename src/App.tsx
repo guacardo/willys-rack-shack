@@ -7,11 +7,8 @@ import { StatusBar } from "./views/status-bar/status-bar";
 import { ContextBar } from "./views/context-bar/context-bar";
 import { EngineDetails } from "./views/engine-details/engine-details";
 import { EngineGroups } from "./views/engine-groups/engine-groups";
-import { selection } from "./stores/selection.store";
 
 function App() {
-    const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
-    const [isGrabbing, setIsGrabbing] = createSignal(false);
     const [theme, setTheme] = createSignal<"light" | "dark" | "neon-green">("neon-green");
 
     // Apply theme when it changes
@@ -24,11 +21,10 @@ function App() {
             <StatusBar theme={theme()} setTheme={setTheme} />
             <ContextBar visible={true}>
                 <EngineGroups expanded={true} />
-                <EngineDetails id={selection()?.id ?? null} />
+                <EngineDetails />
             </ContextBar>
-
-            <div class={`${styles.app} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}>
-                <Viewport setIsSpaceHeld={setIsSpaceHeld} isSpaceHeld={isSpaceHeld()} setIsGrabbing={setIsGrabbing} />
+            <div class={styles.app}>
+                <Viewport />
             </div>
         </WebAudioProvider>
     );

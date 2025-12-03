@@ -37,7 +37,7 @@ export class GainEngine implements IAudioEngine {
     }
 
     getGain(): number {
-        return this.ports.gain.value;
+        return this.gain.gain.value;
     }
 
     connect(destination: AudioNode): void {

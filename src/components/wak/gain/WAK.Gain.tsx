@@ -1,29 +1,30 @@
-import { createSignal, onCleanup } from "solid-js";
-import { GainEngine } from "@/audio/gain.engine";
+import { createMemo } from "solid-js";
 import { WUTInput } from "@/components/wut/input/WUT.Input";
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./WAK.Gain.module.scss";
+import { getEngineById } from "@/stores/engines.store";
+import { isGainEngine } from "@/audio/gain.engine";
 
 export interface WAKGainProps {
-    engine: GainEngine;
+    id: string;
 }
 
-export function WAKGain({ engine }: WAKGainProps) {
-    const [actualGain, setActualGain] = createSignal(engine.getGain());
-
-    const poller = setInterval(() => setActualGain(engine.getGain()), 30);
-    onCleanup(() => clearInterval(poller));
+export function WAKGain({ id }: WAKGainProps) {
+    const engine = createMemo(() => {
+        const eng = getEngineById(id);
+        return isGainEngine(eng) ? eng : undefined;
+    });
 
     const handleGainChange = (e: Event) => {
         const value = Number((e.target as HTMLInputElement).value);
-        engine.setAudioParams({ gain: value });
+        engine()?.setAudioParams({ gain: value });
     };
 
     return (
         <div class={styles.gain}>
             <WUTText variant="label">Gain</WUTText>
-            <WUTInput type="range" min="0" max="2" step="0.01" value={actualGain().toString()} onInput={handleGainChange} />
-            <WUTText variant="number">Actual Gain: {actualGain().toFixed(2)}</WUTText>
+            <WUTInput type="range" min="0" max="2" step="0.01" value={engine()?.getGain().toString()} onInput={handleGainChange} />
+            <WUTText variant="number">{engine()?.getGain().toFixed(2)}</WUTText>
         </div>
     );
 }
