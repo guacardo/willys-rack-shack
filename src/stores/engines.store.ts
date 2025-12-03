@@ -33,8 +33,8 @@ export function updateEngine<T extends IAudioEngine>(id: string, updates: Partia
         const next = new Map(prev);
         const current = next.get(id);
         if (current) {
-            const updated = current.update(updates);
-            next.set(id, updated);
+            Object.assign(current, updates);
+            next.set(id, current);
         }
         return next;
     });

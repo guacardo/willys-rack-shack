@@ -12,7 +12,6 @@ export interface IAudioEngine {
     engineType: EngineType;
     connect(node: AudioNode | AudioParam): void;
     disconnect(): void;
-    update(updates: Partial<this>): this;
 }
 
 export function updateAudioParamValue<T extends AudioNode>(
