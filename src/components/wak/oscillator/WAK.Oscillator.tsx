@@ -1,8 +1,8 @@
 import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
 import { isOscillatorEngine } from "@/audio/oscillator.engine";
-import { getEngineById, updateEngine } from "@/stores/engines.store";
-import { createMemo } from "solid-js";
+import { getEngineById } from "@/stores/engines.store";
+import { createMemo, createSignal, createEffect, onCleanup } from "solid-js";
 
 export interface WAKOscillatorProps {
     id: string;
@@ -14,37 +14,61 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
         return isOscillatorEngine(eng) ? eng : undefined;
     });
 
-    const handleChange = (key: "frequency" | "type" | "detune") => (e: Event) => {
-        e.stopPropagation();
-        const rawValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-        let value: number | OscillatorType;
-        switch (key) {
-            case "type":
-                value = rawValue as OscillatorType;
-                break;
-            case "frequency":
-            case "detune":
-                value = Number(rawValue);
-                break;
+    // Local signals for display values
+    const [frequency, setFrequency] = createSignal(engine()?.getFrequency() ?? 440);
+    const [detune, setDetune] = createSignal(engine()?.getDetune() ?? 0);
+    const [type, setType] = createSignal(engine()?.getType() ?? "sine");
+
+    // Poll the engine for current values
+    let poller: number | undefined;
+    createEffect(() => {
+        if (poller) clearInterval(poller);
+
+        const eng = engine();
+        if (eng) {
+            poller = setInterval(() => {
+                setFrequency(eng.getFrequency());
+                setDetune(eng.getDetune());
+                setType(eng.getType());
+            }, 30); // ~30fps
         }
-        engine()?.setAudioParams({ [key]: value });
-        updateEngine(engine()!.id, { [key]: value }); // Trigger update
+
+        onCleanup(() => poller && clearInterval(poller));
+    });
+
+    const handleFrequencyChange = (e: Event) => {
+        e.stopPropagation();
+        const value = Number((e.target as HTMLInputElement).value);
+        // Just update audio params - poller will sync the UI
+        engine()?.setAudioParams({ frequency: value });
+    };
+
+    const handleDetuneChange = (e: Event) => {
+        e.stopPropagation();
+        const value = Number((e.target as HTMLInputElement).value);
+        engine()?.setAudioParams({ detune: value });
+    };
+
+    const handleTypeChange = (e: Event) => {
+        e.stopPropagation();
+        const value = (e.target as HTMLSelectElement).value as OscillatorType;
+        engine()?.setAudioParams({ type: value });
     };
 
     return (
         <div class={styles.oscillator}>
             <p>{engine()?.name}</p>
             <label>
-                <input type="range" min="50" max="2000" value={engine()?.getFrequency()?.toString() ?? ""} onInput={handleChange("frequency")} />
-                <WUTText variant="subheader">Frequency: {engine()?.getFrequency()}</WUTText>
+                <input type="range" min="50" max="2000" value={frequency()} onInput={handleFrequencyChange} />
+                <WUTText variant="subheader">Frequency: {frequency()}</WUTText>
             </label>
             <label>
-                <input type="range" min="-1200" max="1200" value={engine()?.getDetune()?.toString() ?? ""} onInput={handleChange("detune")} />
-                <WUTText variant="subheader">Detune: {engine()?.getDetune()}</WUTText>
+                <input type="range" min="-1200" max="1200" value={detune()} onInput={handleDetuneChange} />
+                <WUTText variant="subheader">Detune: {detune()}</WUTText>
             </label>
             <label>
                 Type:
-                <select value={engine()?.getType()} onChange={handleChange("type")}>
+                <select value={type()} onChange={handleTypeChange}>
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>
                     <option value="sawtooth">Sawtooth</option>

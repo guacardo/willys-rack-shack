@@ -28,7 +28,7 @@ export function getAllEngines(): IAudioEngine[] {
     return Array.from(engines().values());
 }
 
-export function updateEngine(id: string, updates: Partial<IAudioEngine>) {
+export function updateEngine<T extends IAudioEngine>(id: string, updates: Partial<T>) {
     setEngines((prev) => {
         const next = new Map(prev);
         const current = next.get(id);
