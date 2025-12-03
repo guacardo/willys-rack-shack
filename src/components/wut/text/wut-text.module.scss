@@ -1,29 +1,32 @@
 .wut-header {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: 1.4rem;
     color: var(--color-primary);
-    font-family: inherit;
-    text-transform: uppercase;
-    font-family: "Share Tech Mono", "Orbitron", monospace;
+    font-family: "Google Sans Code", sans-serif;
+    font-weight: 600;
 }
 
 .wut-subheader {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.2rem;
     color: var(--color-accent);
-    font-family: inherit;
+    font-family: "Google Sans Code", sans-serif;
+    font-weight: 600;
 }
 
 .wut-body {
     font-size: 1rem;
+    font-family: "Google Sans Code", sans-serif;
     color: var(--color-text);
-    font-family: inherit;
 }
 
 .wut-number {
-    font-size: 1.1rem;
-    font-family: "Orbitron", monospace;
+    font-size: 1rem;
     color: var(--color-primary);
     letter-spacing: 0.12em;
+    font-family: "Orbitron", monospace;
+}
+
+.wut-unit {
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    font-family: "Google Sans Code", sans-serif;
 }

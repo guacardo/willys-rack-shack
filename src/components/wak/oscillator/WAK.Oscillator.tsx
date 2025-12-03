@@ -57,14 +57,20 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
 
     return (
         <div class={styles.oscillator}>
-            <p>{engine()?.name}</p>
+            <WUTText variant="subheader">{engine()?.name}</WUTText>
             <label>
                 <input type="range" min="50" max="2000" value={frequency()} onInput={handleFrequencyChange} />
-                <WUTText variant="subheader">Frequency: {frequency()}</WUTText>
+                <div class={styles["control"]}>
+                    <WUTText variant="number">{frequency()}</WUTText>
+                    <WUTText variant="unit">hz</WUTText>
+                </div>
             </label>
             <label>
                 <input type="range" min="-1200" max="1200" value={detune()} onInput={handleDetuneChange} />
-                <WUTText variant="subheader">Detune: {detune()}</WUTText>
+                <div class={styles["control"]}>
+                    <WUTText variant="number">{detune()}</WUTText>
+                    <WUTText variant="unit">ct</WUTText>
+                </div>
             </label>
             <label>
                 Type:

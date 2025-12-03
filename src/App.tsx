@@ -1,5 +1,4 @@
 import "./theme.scss";
-import styles from "./app.module.scss";
 import { Viewport } from "./views/viewport/viewport";
 import { createSignal, createEffect } from "solid-js";
 import { WebAudioProvider } from "./contexts/web-audio-context";
@@ -23,9 +22,7 @@ function App() {
                 <EngineGroups expanded={true} />
                 <EngineDetails />
             </ContextBar>
-            <div class={styles.app}>
-                <Viewport />
-            </div>
+            <Viewport />
         </WebAudioProvider>
     );
 }

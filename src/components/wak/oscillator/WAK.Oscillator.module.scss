@@ -4,4 +4,12 @@
     gap: 12px;
     background-color: var(--color-bg);
     border-radius: var(--border-radius);
+
+    .control {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px;
+    }
 }

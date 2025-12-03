@@ -1,15 +1,24 @@
-.viewport {
-    position: absolute;
+.viewport-container {
     width: 100vw;
     height: 100vh;
-    overflow: visible;
-    z-index: 100;
-    transform-origin: 0 0;
-}
+    overflow: hidden;
+    position: relative;
+    background-color: var(--color-bg);
 
-.grab {
-    cursor: grab !important;
-}
-.grabbing {
-    cursor: grabbing !important;
+    .viewport {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        overflow: visible;
+        z-index: 100;
+        transform-origin: 0 0;
+
+        &.grab {
+            cursor: grab !important;
+        }
+
+        &.grabbing {
+            cursor: grabbing !important;
+        }
+    }
 }

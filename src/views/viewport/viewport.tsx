@@ -94,48 +94,72 @@ export function Viewport() {
     });
 
     return (
-        <div
-            class={`${styles.viewport} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}
-            style={{
-                left: `${pan().x}px`,
-                top: `${pan().y}px`,
-                transform: `scale(${scale()})`,
-            }}
-        >
-            {/* GROUPED ENGINES */}
-            {getAllGroups().map((group, groupIndex) => (
-                <Snappable
-                    id={group.id}
-                    initial={{ x: 100 + groupIndex * 300, y: 100 }}
-                    getScale={scale}
-                    isSpaceHeld={isSpaceHeld()}
-                    borderColor={isSelected("group", group.id) ? "#4f8cff" : undefined}
-                    onClick={() => selectItem("group", group.id)}
-                >
-                    <div class={styles.group}>
-                        {getMembersOfGroup(group.id).map((engineId) => {
-                            const engine = getEngineById(engineId);
-                            if (isOscillatorEngine(engine)) {
-                                return <WAKOscillator id={engine.id} />;
-                            } else if (isGainEngine(engine)) {
-                                return <WAKGain id={engine.id} />;
-                            }
-                            return null;
-                        })}
-                    </div>
-                </Snappable>
-            ))}
-            {/* UNGROUPED ENGINES */}
-            {getUngroupedEngines().map((engine) => {
-                if (isOscillatorEngine(engine)) {
-                    return <WAKOscillator id={engine.id} />;
-                } else if (isGainEngine(engine)) {
-                    return <WAKGain id={engine.id} />;
-                } else {
-                    console.warn("Unknown engine type in Viewport:", engine);
-                }
-                return null;
-            })}
+        <div class={styles["viewport-container"]}>
+            <div
+                class={`${styles.viewport} ${isSpaceHeld() ? (isGrabbing() ? styles.grabbing : styles.grab) : ""}`}
+                style={{
+                    left: `${pan().x}px`,
+                    top: `${pan().y}px`,
+                    transform: `scale(${scale()})`,
+                }}
+            >
+                {/* GROUPED ENGINES */}
+                {getAllGroups().map((group, groupIndex) => (
+                    <Snappable
+                        id={group.id}
+                        initial={{ x: 100 + groupIndex * 300, y: 100 }}
+                        getScale={scale}
+                        isSpaceHeld={isSpaceHeld()}
+                        borderColor={isSelected("group", group.id) ? "#4f8cff" : undefined}
+                        onClick={() => selectItem("group", group.id)}
+                    >
+                        <div class={styles.group}>
+                            {getMembersOfGroup(group.id).map((engineId) => {
+                                const engine = getEngineById(engineId);
+                                if (isOscillatorEngine(engine)) {
+                                    return <WAKOscillator id={engine.id} />;
+                                } else if (isGainEngine(engine)) {
+                                    return <WAKGain id={engine.id} />;
+                                }
+                                return null;
+                            })}
+                        </div>
+                    </Snappable>
+                ))}
+                {/* UNGROUPED ENGINES */}
+                {getUngroupedEngines().map((engine) => {
+                    if (isOscillatorEngine(engine)) {
+                        return (
+                            <Snappable
+                                id={engine.id}
+                                initial={{ x: 100, y: 100 }}
+                                getScale={scale}
+                                isSpaceHeld={isSpaceHeld()}
+                                borderColor={isSelected("engine", engine.id) ? "#4f8cff" : undefined}
+                                onClick={() => selectItem("engine", engine.id)}
+                            >
+                                <WAKOscillator id={engine.id} />
+                            </Snappable>
+                        );
+                    } else if (isGainEngine(engine)) {
+                        return (
+                            <Snappable
+                                id={engine.id}
+                                initial={{ x: 100, y: 100 }}
+                                getScale={scale}
+                                isSpaceHeld={isSpaceHeld()}
+                                borderColor={isSelected("engine", engine.id) ? "#4f8cff" : undefined}
+                                onClick={() => selectItem("engine", engine.id)}
+                            >
+                                <WAKGain id={engine.id} />
+                            </Snappable>
+                        );
+                    } else {
+                        console.warn("Unknown engine type in Viewport:", engine);
+                    }
+                    return null;
+                })}
+            </div>
         </div>
     );
 }
