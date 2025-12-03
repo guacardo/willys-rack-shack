@@ -1,3 +1,6 @@
+export function setGroupName(groupId: string, name: string) {
+    setGroups(groups.map((g) => (g.id === groupId ? { ...g, name } : g)));
+}
 import { createStore } from "solid-js/store";
 
 // group.store.ts

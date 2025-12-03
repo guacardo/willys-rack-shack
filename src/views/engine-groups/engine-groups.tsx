@@ -6,7 +6,7 @@ import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
 import { addEngine, getEngineById, getUngroupedEngines } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
-import { createGroup, getAllGroups, addMember, removeMember, getMembersOfGroup } from "@/stores/groups.store";
+import { createGroup, getAllGroups, addMember, removeMember, getMembersOfGroup, setGroupName } from "@/stores/groups.store";
 import { isSelected, selectItem } from "@/stores/selection.store";
 
 interface EngineGroupProps {
@@ -92,7 +92,18 @@ export function EngineGroups(props: EngineGroupProps) {
             </div>
             {getAllGroups().map((group) => (
                 <div class={styles["group-item"]}>
-                    <WUTText variant="subheader">{group.name}</WUTText>
+                    <WUTText
+                        variant="subheader"
+                        contentEditable
+                        onBlur={(e) => {
+                            const newName = e.target.textContent?.trim() || group.name;
+                            if (newName !== group.name) {
+                                setGroupName(group.id, newName);
+                            }
+                        }}
+                    >
+                        {group.name}
+                    </WUTText>
                     <WUTText variant="body">Members: {group.members.length}</WUTText>
                     {getMembersOfGroup(group.id).map((memberId) => {
                         return (

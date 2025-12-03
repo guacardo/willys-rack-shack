@@ -9,6 +9,7 @@ import { selectItem, isSelected } from "@/stores/selection.store";
 import { getAllGroups, getMembersOfGroup } from "@/stores/groups.store";
 
 import styles from "./viewport.module.scss";
+import { WUTText } from "@/components/wut/text/WUT.Text";
 
 export function Viewport() {
     const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
@@ -114,6 +115,7 @@ export function Viewport() {
                         onClick={() => selectItem("group", group.id)}
                     >
                         <div class={styles.group}>
+                            <WUTText variant="header">{group.name}</WUTText>
                             {getMembersOfGroup(group.id).map((engineId) => {
                                 const engine = getEngineById(engineId);
                                 if (isOscillatorEngine(engine)) {

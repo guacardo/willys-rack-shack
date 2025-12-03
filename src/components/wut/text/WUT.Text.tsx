@@ -7,6 +7,8 @@ interface WUTTextProps {
     children: JSX.Element;
     variant: WUTTextVariant;
     class?: string;
+    contentEditable?: boolean;
+    onBlur?: JSX.EventHandlerUnion<HTMLSpanElement, FocusEvent>;
 }
 
 const variantStyles: Record<WUTTextVariant, string> = {
@@ -20,5 +22,9 @@ const variantStyles: Record<WUTTextVariant, string> = {
 
 export function WUTText(props: WUTTextProps) {
     const variantClass = props.variant ? variantStyles[props.variant] : variantStyles.body;
-    return <span class={`${variantClass}${props.class ? ` ${props.class}` : ""}`}>{props.children}</span>;
+    return (
+        <span class={`${variantClass}${props.class ? ` ${props.class}` : ""}`} contentEditable={props.contentEditable} onBlur={props.onBlur}>
+            {props.children}
+        </span>
+    );
 }
