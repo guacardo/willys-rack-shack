@@ -9,6 +9,9 @@ interface WUTTextProps {
     class?: string;
     contentEditable?: boolean;
     onBlur?: JSX.EventHandlerUnion<HTMLSpanElement, FocusEvent>;
+    flare?: {
+        dotted?: boolean;
+    };
 }
 
 const variantStyles: Record<WUTTextVariant, string> = {
@@ -22,8 +25,10 @@ const variantStyles: Record<WUTTextVariant, string> = {
 
 export function WUTText(props: WUTTextProps) {
     const variantClass = props.variant ? variantStyles[props.variant] : variantStyles.body;
+    const flareClass = props.flare?.dotted ? "wut-flare-dotted" : "";
+    console.log("flareClass", flareClass);
     return (
-        <span class={`${variantClass}${props.class ? ` ${props.class}` : ""}`} contentEditable={props.contentEditable} onBlur={props.onBlur}>
+        <span class={`${variantClass} ${styles[flareClass]}`} contentEditable={props.contentEditable} onBlur={props.onBlur}>
             {props.children}
         </span>
     );

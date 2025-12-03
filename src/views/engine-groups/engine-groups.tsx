@@ -80,7 +80,9 @@ export function EngineGroups(props: EngineGroupProps) {
 
     return (
         <div class={`${styles["engine-groups"]} ${props.expanded ? styles.visible : ""}`}>
-            <WUTText variant="header">Modules</WUTText>
+            <WUTText variant="header" flare={{ dotted: true }}>
+                Modules
+            </WUTText>
             <div>
                 <select value={selectedType()} onChange={(e) => setSelectedType(e.target.value as EngineType)}>
                     {nodeSelectOptions.map((option) => (

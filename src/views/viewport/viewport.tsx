@@ -115,7 +115,9 @@ export function Viewport() {
                         onClick={() => selectItem("group", group.id)}
                     >
                         <div class={styles.group}>
-                            <WUTText variant="header">{group.name}</WUTText>
+                            <WUTText variant="header" flare={{ dotted: true }}>
+                                {group.name}
+                            </WUTText>
                             {getMembersOfGroup(group.id).map((engineId) => {
                                 const engine = getEngineById(engineId);
                                 if (isOscillatorEngine(engine)) {
