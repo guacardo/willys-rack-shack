@@ -29,6 +29,7 @@ export function addConnection(connection: Connection) {
 }
 
 export function removeConnection(connection: Connection) {
+    // todo: call each engine's disconnect method (remove from web audio graph), then remove from store.
     setConnections((prev) =>
         prev.filter(
             (c) =>

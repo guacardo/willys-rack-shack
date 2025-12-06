@@ -2,14 +2,20 @@ import { createSignal, onCleanup } from "solid-js";
 import { WAKOscillator } from "@/components/wak/oscillator/WAK.Oscillator";
 import { WAKGain } from "@/components/wak/gain/WAK.Gain";
 import { Snappable } from "@/components/ui/snappable/snappable";
-import { getEngineById, getUngroupedEngines } from "@/stores/engines.store";
+import { getUngroupedEngines } from "@/stores/engines.store";
 import { isGainEngine } from "@/audio/gain.engine";
 import { isOscillatorEngine } from "@/audio/oscillator.engine";
 import { selectItem, isSelected } from "@/stores/selection.store";
-import { getAllGroups, getMembersOfGroup } from "@/stores/groups.store";
+import { getAllGroups } from "@/stores/groups.store";
 
 import styles from "./viewport.module.scss";
-import { WUTText } from "@/components/wut/text/WUT.Text";
+import { ViewportEngineModule } from "./engine-module/engine-module";
+
+export interface ViewportProps {
+    getScale?: () => number;
+    isSpaceHeld?: boolean;
+    initialPan?: { x: number; y: number };
+}
 
 export function Viewport() {
     const [isSpaceHeld, setIsSpaceHeld] = createSignal(false);
@@ -105,30 +111,8 @@ export function Viewport() {
                 }}
             >
                 {/* GROUPED ENGINES */}
-                {getAllGroups().map((group, groupIndex) => (
-                    <Snappable
-                        id={group.id}
-                        initial={{ x: 100 + groupIndex * 300, y: 100 }}
-                        getScale={scale}
-                        isSpaceHeld={isSpaceHeld()}
-                        borderColor={isSelected("group", group.id) ? "#4f8cff" : undefined}
-                        onClick={() => selectItem("group", group.id)}
-                    >
-                        <div class={styles.group}>
-                            <WUTText variant="header" flare={{ dotted: true }}>
-                                {group.name}
-                            </WUTText>
-                            {getMembersOfGroup(group.id).map((engineId) => {
-                                const engine = getEngineById(engineId);
-                                if (isOscillatorEngine(engine)) {
-                                    return <WAKOscillator id={engine.id} />;
-                                } else if (isGainEngine(engine)) {
-                                    return <WAKGain id={engine.id} />;
-                                }
-                                return null;
-                            })}
-                        </div>
-                    </Snappable>
+                {getAllGroups().map((group) => (
+                    <ViewportEngineModule id={group.id} viewport={{ getScale: scale, isSpaceHeld: isSpaceHeld() }} />
                 ))}
                 {/* UNGROUPED ENGINES */}
                 {getUngroupedEngines().map((engine) => {

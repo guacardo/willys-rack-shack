@@ -56,6 +56,7 @@ export function addMember(groupId: string, memberId: string) {
 
 export function removeMember(groupId: string, memberId: string) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.filter((id) => id !== memberId) } : g)));
+    syncGroupConnections(groupId);
 }
 
 export function deleteGroup(groupId: string) {
@@ -64,6 +65,10 @@ export function deleteGroup(groupId: string) {
 
 export function getAllGroups(): Group[] {
     return groups;
+}
+
+export function getGroup(id: string): Group | undefined {
+    return groups.find((g) => g.id === id);
 }
 
 export function getMembersOfGroup(groupId: string): string[] {
