@@ -11,6 +11,14 @@ export type Group = {
     members: string[]; // item IDs
 };
 
+export type GroupTemplate = "empty" | "single-osc" | "poly-voice" | "lfo-mod";
+export const groupTemplateOptions: Record<GroupTemplate, string> = {
+    empty: "Empty Group",
+    "single-osc": "Single Oscillator",
+    "poly-voice": "Polyphonic Voice",
+    "lfo-mod": "LFO Modulation",
+};
+
 const [groups, setGroups] = createStore<Group[]>([]);
 
 export function createGroup(name: string, members: string[] = []) {
@@ -19,21 +27,20 @@ export function createGroup(name: string, members: string[] = []) {
     return id;
 }
 
-export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly-voice" | "lfo'mod", audioCtx: AudioContext): string {
-    const id = crypto.randomUUID();
-
+export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly-voice" | "lfo-mod", audioCtx: AudioContext): string {
+    let id = "";
     switch (template) {
         case "empty":
             const gain = new GainEngine(audioCtx);
             addEngine(gain);
-            createGroup("Empty Group", [gain.id]);
+            id = createGroup("Empty Group", [gain.id]);
             break;
         case "single-osc":
             const osc = new OscillatorEngine(audioCtx);
             const outGain = new GainEngine(audioCtx);
             addEngine(osc);
             addEngine(outGain);
-            createGroup("Single Osc", [osc.id, outGain.id]);
+            id = createGroup("Single Osc", [osc.id, outGain.id]);
             break;
     }
 

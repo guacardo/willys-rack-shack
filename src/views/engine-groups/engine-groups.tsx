@@ -6,7 +6,7 @@ import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
 import { addEngine, getEngineById, getUngroupedEngines, removeEngine } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
-import { createGroup, getAllGroups, addMember, removeMember, getMembersOfGroup, setGroupName } from "@/stores/groups.store";
+import { getAllGroups, addMember, removeMember, getMembersOfGroup, setGroupName, groupTemplateOptions, createGroupFromTemplate } from "@/stores/groups.store";
 import { isSelected, selectItem } from "@/stores/selection.store";
 import { WUTButton } from "@/components/wut/button/WUTButton";
 
@@ -75,32 +75,34 @@ function UngroupedEngineItem(props: { engineId: string; onClick?: () => void; se
 
 export function EngineGroups(props: EngineGroupProps) {
     const { audioCtx } = useWebAudioContext();
-    const [selectedType, setSelectedType] = createSignal(nodeSelectOptions[0].value);
+    const [selectedEngine, setSelectedEngine] = createSignal(nodeSelectOptions[0].value);
+    const [selectedTemplate, setSelectedTemplate] = createSignal<keyof typeof groupTemplateOptions>("empty");
 
     function handleCreateNode() {
         let newNode;
-        if (selectedType() === "oscillator") newNode = new OscillatorEngine(audioCtx);
-        if (selectedType() === "gain") newNode = new GainEngine(audioCtx);
+        if (selectedEngine() === "oscillator") newNode = new OscillatorEngine(audioCtx);
+        if (selectedEngine() === "gain") newNode = new GainEngine(audioCtx);
         if (newNode) addEngine(newNode);
-    }
-
-    function handleCreateGroup() {
-        createGroup("New Group");
     }
 
     return (
         <div class={`${styles["engine-groups"]} ${props.expanded ? styles.visible : ""}`}>
-            <WUTText variant="header" flare={{ dotted: true }}>
-                Modules
-            </WUTText>
-            <div>
-                <select value={selectedType()} onChange={(e) => setSelectedType(e.target.value as EngineType)}>
-                    {nodeSelectOptions.map((option) => (
-                        <option value={option.value}>{option.label}</option>
+            <div class={styles["section-header"]}>
+                <WUTText variant="header" flare={{ dotted: true }}>
+                    Groups
+                </WUTText>
+                <select value={selectedTemplate()} onChange={(e) => setSelectedTemplate(e.target.value as keyof typeof groupTemplateOptions)}>
+                    {Object.entries(groupTemplateOptions).map(([key, label]) => (
+                        <option value={key}>{label}</option>
                     ))}
                 </select>
-                <button onClick={handleCreateNode}>Create Node</button>
-                <button onClick={handleCreateGroup}>Create Group</button>
+                <button
+                    onClick={() => {
+                        createGroupFromTemplate(selectedTemplate(), audioCtx);
+                    }}
+                >
+                    +
+                </button>
             </div>
             {getAllGroups().map((group) => (
                 <div class={styles["group-item"]}>
@@ -131,9 +133,17 @@ export function EngineGroups(props: EngineGroupProps) {
                     })}
                 </div>
             ))}
-            <WUTText variant="header" flare={{ dotted: true }}>
-                Engines
-            </WUTText>
+            <div class={styles["section-header"]}>
+                <WUTText variant="header" flare={{ dotted: true }}>
+                    Engines
+                </WUTText>
+                <select value={selectedEngine()} onChange={(e) => setSelectedEngine(e.target.value as EngineType)}>
+                    {nodeSelectOptions.map((option) => (
+                        <option value={option.value}>{option.label}</option>
+                    ))}
+                </select>
+                <button onClick={handleCreateNode}>+</button>
+            </div>
             {getUngroupedEngines().map((engine) => (
                 <UngroupedEngineItem engineId={engine.id} selected={isSelected("engine", engine.id)} onClick={() => selectItem("engine", engine.id)} />
             ))}
