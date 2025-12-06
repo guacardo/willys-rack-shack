@@ -37,14 +37,14 @@ export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly
             break;
     }
 
-    syncGroupConnections(id, audioCtx);
+    syncGroupConnections(id);
 
     return id;
 }
 
-export function addMember(groupId: string, memberId: string, atx: AudioContext) {
+export function addMember(groupId: string, memberId: string) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.includes(memberId) ? g.members : [...g.members, memberId] } : g)));
-    syncGroupConnections(groupId, atx);
+    syncGroupConnections(groupId);
 }
 
 export function removeMember(groupId: string, memberId: string) {

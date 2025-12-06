@@ -4,6 +4,7 @@ import type { EngineType } from "@/audio/engine";
 import { createSignal } from "solid-js";
 import { getEngineById } from "./engines.store";
 import { getMembersOfGroup } from "./groups.store";
+import { getAudioContext } from "@/contexts/web-audio-context";
 
 type EnginePortMap = {
     oscillator: keyof OscillatorPorts;
@@ -44,7 +45,8 @@ export function clearConnections() {
     setConnections([]);
 }
 
-export function syncGroupConnections(groupId: string, audioCtx: AudioContext) {
+export function syncGroupConnections(groupId: string) {
+    const audioCtx = getAudioContext();
     const memberIds = getMembersOfGroup(groupId);
     const engines = memberIds.map((id) => getEngineById(id)).filter((e) => e !== undefined);
 
@@ -88,7 +90,6 @@ export function syncGroupConnections(groupId: string, audioCtx: AudioContext) {
 
         if (!destExists) {
             addConnection(destConnection);
-            // Actually connect to destination
             outputGain.connect(audioCtx.destination);
         }
     }
