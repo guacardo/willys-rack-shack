@@ -1,10 +1,10 @@
 .context-bar {
     background-color: var(--color-bg2);
     position: fixed;
-    top: 40px;
+    top: var(--status-bar-height);
     bottom: 0;
-    right: -400px;
-    width: 400px;
+    right: -(var(--context-bar-width));
+    width: var(--context-bar-width);
     z-index: 1003;
     padding: 16px;
 

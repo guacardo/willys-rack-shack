@@ -1,5 +1,11 @@
-.module-details {
+.engine-details {
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    .empty-state {
+        display: flex;
+        place-items: center;
+        padding: 80px;
+    }
 }

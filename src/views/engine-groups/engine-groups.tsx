@@ -4,10 +4,11 @@ import { EngineType } from "@/audio/engine";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
-import { addEngine, getEngineById, getUngroupedEngines } from "@/stores/engines.store";
+import { addEngine, getEngineById, getUngroupedEngines, removeEngine } from "@/stores/engines.store";
 import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { createGroup, getAllGroups, addMember, removeMember, getMembersOfGroup, setGroupName } from "@/stores/groups.store";
 import { isSelected, selectItem } from "@/stores/selection.store";
+import { WUTButton } from "@/components/wut/button/WUTButton";
 
 interface EngineGroupProps {
     expanded: boolean;
@@ -39,7 +40,7 @@ function UngroupedEngineItem(props: { engineId: string; onClick?: () => void; se
 
     return (
         <div class={`${styles["engine-item"]} ${props.selected ? styles.selected : ""}`} onClick={props.onClick}>
-            {getEngineById(props.engineId)?.name}
+            <WUTText variant="body">{getEngineById(props.engineId)?.name}</WUTText>
             <select value={selectedGroupId()} onChange={(e) => setSelectedGroupId(e.target.value)}>
                 <option value="" disabled>
                     Add to group...
@@ -48,7 +49,8 @@ function UngroupedEngineItem(props: { engineId: string; onClick?: () => void; se
                     <option value={group.id}>{group.name}</option>
                 ))}
             </select>
-            <button
+            <WUTButton
+                variant="secondary"
                 onClick={() => {
                     if (selectedGroupId()) {
                         addMember(selectedGroupId(), props.engineId);
@@ -58,7 +60,15 @@ function UngroupedEngineItem(props: { engineId: string; onClick?: () => void; se
                 disabled={!selectedGroupId()}
             >
                 +
-            </button>
+            </WUTButton>
+            <WUTButton
+                variant="destructive"
+                onClick={() => {
+                    removeEngine(props.engineId);
+                }}
+            >
+                x
+            </WUTButton>
         </div>
     );
 }
@@ -106,7 +116,9 @@ export function EngineGroups(props: EngineGroupProps) {
                     >
                         {group.name}
                     </WUTText>
-                    <WUTText variant="body">Members: {group.members.length}</WUTText>
+                    <WUTText variant="body" flare={{ dotted: true }}>
+                        Members: {group.members.length}
+                    </WUTText>
                     {getMembersOfGroup(group.id).map((memberId) => {
                         return (
                             <GroupedEngineItem
@@ -119,7 +131,9 @@ export function EngineGroups(props: EngineGroupProps) {
                     })}
                 </div>
             ))}
-            <WUTText variant="header">Engines</WUTText>
+            <WUTText variant="header" flare={{ dotted: true }}>
+                Engines
+            </WUTText>
             {getUngroupedEngines().map((engine) => (
                 <UngroupedEngineItem engineId={engine.id} selected={isSelected("engine", engine.id)} onClick={() => selectItem("engine", engine.id)} />
             ))}

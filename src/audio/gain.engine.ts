@@ -1,6 +1,6 @@
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 
-type GainPorts = {
+export type GainPorts = {
     input: GainNode;
     output: GainNode;
     gain: AudioParam;

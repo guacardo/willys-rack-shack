@@ -18,6 +18,15 @@
     color: var(--color-text);
 }
 
+.wut-label {
+    font-size: 0.9rem;
+    font-family: "Google Sans Code", sans-serif;
+    color: var(--color-text);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .wut-number {
     font-size: 1rem;
     color: var(--color-primary);

@@ -8,7 +8,7 @@ import { EngineDetails } from "./views/engine-details/engine-details";
 import { EngineGroups } from "./views/engine-groups/engine-groups";
 
 function App() {
-    const [theme, setTheme] = createSignal<"light" | "dark" | "neon-green">("neon-green");
+    const [theme, setTheme] = createSignal<"light" | "dark" | "neon-green" | "synthwave">("dark");
 
     // Apply theme when it changes
     createEffect(() => {

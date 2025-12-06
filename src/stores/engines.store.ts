@@ -12,10 +12,10 @@ export function addEngine(engine: IAudioEngine) {
     });
 }
 
-export function removeEngine(engine: IAudioEngine) {
+export function removeEngine(id: string) {
     setEngines((prev) => {
         const next = new Map(prev);
-        next.delete(engine.id);
+        next.delete(id);
         return next;
     });
 }

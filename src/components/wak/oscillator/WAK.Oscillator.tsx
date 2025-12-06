@@ -20,6 +20,7 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
     const [type, setType] = createSignal(engine()?.getType() ?? "sine");
 
     // Poll the engine for current values
+    // todo, observer/visitor pattern for polling all active audio engines
     let poller: number | undefined;
     createEffect(() => {
         if (poller) clearInterval(poller);
@@ -73,7 +74,7 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
                 </div>
             </label>
             <label>
-                Type:
+                <WUTText variant="label">Type:</WUTText>
                 <select value={type()} onChange={handleTypeChange}>
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>

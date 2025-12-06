@@ -12,7 +12,9 @@ export function EngineDetails() {
 
     return (
         <div class={styles["engine-details"]}>
-            <WUTText variant="header">Module Details</WUTText>
+            <WUTText variant="header" flare={{ dotted: true }}>
+                Module Details
+            </WUTText>
             <Show when={engine()} keyed>
                 {(eng) => (
                     <div>
@@ -24,7 +26,9 @@ export function EngineDetails() {
                 )}
             </Show>
             <Show when={!engine()}>
-                <WUTText variant="body">No module selected</WUTText>
+                <div class={styles["empty-state"]}>
+                    <WUTText variant="body">No module selected</WUTText>
+                </div>
             </Show>
         </div>
     );
