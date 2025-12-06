@@ -2,6 +2,7 @@ import { createStore } from "solid-js/store";
 import { addEngine } from "./engines.store";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
+import { syncGroupConnections } from "./connections.store";
 
 // group.store.ts
 export type Group = {
@@ -33,15 +34,17 @@ export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly
             addEngine(osc);
             addEngine(outGain);
             createGroup("Single Osc", [osc.id, outGain.id]);
-            // syncGroupConnections(groupId); // Auto-connect
             break;
     }
+
+    syncGroupConnections(id, audioCtx);
 
     return id;
 }
 
-export function addMember(groupId: string, memberId: string) {
+export function addMember(groupId: string, memberId: string, atx: AudioContext) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.includes(memberId) ? g.members : [...g.members, memberId] } : g)));
+    syncGroupConnections(groupId, atx);
 }
 
 export function removeMember(groupId: string, memberId: string) {
