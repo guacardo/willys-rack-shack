@@ -38,9 +38,9 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
     };
 
     return (
-        <div class={`${styles["control"]} ${styles[orientation]}`}>
+        <div class={`${styles["control"]}`}>
             <WUTText variant="label">Gain</WUTText>
-            <WUTInput type="range" min="0" max="2" step="0.01" value={gain()} onInput={handleGainChange} />
+            <WUTInput type="range" min="0" max="2" step="0.01" value={gain()} onInput={handleGainChange} orientation={orientation} />
             <WUTText variant="number">{gain().toFixed(2)}</WUTText>
         </div>
     );

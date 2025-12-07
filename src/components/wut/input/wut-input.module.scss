@@ -1,14 +1,16 @@
-.wutInput {
+.wut-input {
     background: var(--color-bg);
     color: var(--color-text);
     border: 2px solid var(--color-primary);
     border-radius: var(--border-radius);
     padding: 0.75em 1em;
     font-family: "Orbitron";
-    font-size: 1.1em;
-    box-shadow: var(--box-shadow);
+    font-size: 1em;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &.vertical {
+        transform: rotate(-90deg);
+    }
 
     &:focus {
         border-color: var(--color-accent);

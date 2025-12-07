@@ -7,17 +7,16 @@ type WUTInputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
     onInput?: JSX.EventHandlerUnion<HTMLInputElement, InputEvent>;
     onFocus?: JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>;
     onBlur?: JSX.EventHandlerUnion<HTMLInputElement, FocusEvent>;
+    orientation?: "horizontal" | "vertical";
 };
 
-export function WUTInput(props: WUTInputProps) {
-    let inputClass = styles.wutInput;
-    if (props.error) inputClass += ` ${styles.error}`;
+export function WUTInput(props: WUTInputProps = { orientation: "horizontal" }) {
     return (
         <input
             type={props.type ?? "text"}
             value={props.value}
             placeholder={props.placeholder}
-            class={`${inputClass}${props.class ? ` ${props.class}` : ""}`}
+            class={`${styles["wut-input"]} ${styles[props.orientation ?? "horizontal"]}`}
             onInput={props.onInput}
             onFocus={props.onFocus}
             onBlur={props.onBlur}
