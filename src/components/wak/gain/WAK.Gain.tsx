@@ -7,9 +7,10 @@ import { isGainEngine } from "@/audio/gain.engine";
 
 export interface WAKGainProps {
     id: string;
+    orientation?: "horizontal" | "vertical";
 }
 
-export function WAKGain({ id }: WAKGainProps) {
+export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
     const engine = createMemo(() => {
         const eng = getEngineById(id);
         return isGainEngine(eng) ? eng : undefined;
@@ -37,7 +38,7 @@ export function WAKGain({ id }: WAKGainProps) {
     };
 
     return (
-        <div class={styles["control"]}>
+        <div class={`${styles["control"]} ${styles[orientation]}`}>
             <WUTText variant="label">Gain</WUTText>
             <WUTInput type="range" min="0" max="2" step="0.01" value={gain()} onInput={handleGainChange} />
             <WUTText variant="number">{gain().toFixed(2)}</WUTText>

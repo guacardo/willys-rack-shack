@@ -1,0 +1,20 @@
+.groupGrid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.gainSidebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px; // adjust as needed for your slider
+    // Optionally add more styling for vertical slider
+}
