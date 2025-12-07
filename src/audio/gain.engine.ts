@@ -6,7 +6,7 @@ export type GainPorts = {
     gain: AudioParam;
 };
 
-export class GainEngine implements IAudioEngine {
+export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
     id: string;
     name: string = "Gain";
     ctx: AudioContext;
@@ -50,6 +50,17 @@ export class GainEngine implements IAudioEngine {
         } else {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
+    }
+
+    isPortConnected(portName: keyof GainPorts): boolean {
+        let connected = false;
+        console.log(`Checking if port is connected: ${portName}: ${connected}`);
+        return connected;
+    }
+
+    cleanup(): void {
+        console.log(`Cleaning up GainEngine ${this.id}`);
+        this.disconnect();
     }
 }
 

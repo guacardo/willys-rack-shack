@@ -6,7 +6,7 @@ export type OscillatorPorts = {
     detune: AudioParam;
 };
 
-export class OscillatorEngine implements IAudioEngine {
+export class OscillatorEngine implements IAudioEngine<OscillatorNode, OscillatorPorts> {
     id: string;
     name: string = "Oscillator";
     ctx: AudioContext;
@@ -64,6 +64,18 @@ export class OscillatorEngine implements IAudioEngine {
         } else {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
+    }
+
+    isPortConnected(portName: keyof OscillatorPorts): boolean {
+        let connected = false;
+        console.log(`Checking if port is connected: ${portName}: ${connected}`);
+        return connected;
+    }
+
+    cleanup(): void {
+        console.log(`Cleaning up OscillatorEngine ${this.id}`);
+        this.disconnect();
+        this.osc.stop();
     }
 }
 

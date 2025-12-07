@@ -1,8 +1,9 @@
 import type { OscillatorPorts } from "@/audio/oscillator.engine";
 import type { GainPorts } from "@/audio/gain.engine";
-import type { EngineType } from "@/audio/engine";
+import type { EngineTypeKey } from "@/audio/engine";
 import { createSignal } from "solid-js";
 import { getEngineById } from "./engines.store";
+import type { IAudioEngine } from "@/audio/engine";
 import { getMembersOfGroup } from "./groups.store";
 import { getAudioContext } from "@/contexts/web-audio-context";
 
@@ -13,8 +14,8 @@ type EnginePortMap = {
 
 type Terminal = {
     id: string;
-    type: EngineType;
-    port: EnginePortMap[EngineType];
+    type: EngineTypeKey;
+    port: EnginePortMap[EngineTypeKey];
 };
 
 export type Connection = {
@@ -49,11 +50,12 @@ export function clearConnections() {
 export function syncGroupConnections(groupId: string) {
     const audioCtx = getAudioContext();
     const memberIds = getMembersOfGroup(groupId);
-    const engines = memberIds.map((id) => getEngineById(id)).filter((e) => e !== undefined);
+    // Only keep defined engines and type them as IAudioEngine<any, any>
+    const engines = memberIds.map((id) => getEngineById(id)).filter((e): e is IAudioEngine<any, any> => e !== undefined);
 
-    // Find sources (oscillators) and gains
-    const sources = engines.filter((e) => e.engineType === "oscillator");
-    const gains = engines.filter((e) => e.engineType === "gain");
+    // Find sources (oscillators) and gains, with correct type guards
+    const sources = engines.filter((e): e is IAudioEngine<any, any> & { engineType: "oscillator" } => e.engineType === "oscillator");
+    const gains = engines.filter((e): e is IAudioEngine<any, any> & { engineType: "gain" } => e.engineType === "gain");
 
     // Only auto-connect if this is a "source group" (has both sources and gains)
     if (sources.length > 0 && gains.length > 0) {
@@ -73,9 +75,8 @@ export function syncGroupConnections(groupId: string) {
             );
 
             if (!exists) {
-                addConnection(connection);
-                // Actually connect the Web Audio nodes
                 source.connect(outputGain.ports.input as AudioNode);
+                addConnection(connection);
             }
         });
 

@@ -1,6 +1,6 @@
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./engine-groups.module.scss";
-import { EngineType } from "@/audio/engine";
+import { EngineType, type EngineTypeValue } from "@/audio/engine";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
@@ -15,8 +15,8 @@ interface EngineGroupProps {
 }
 
 const nodeSelectOptions = Object.entries(EngineType).map(([key, value]) => ({
-    label: key,
-    value: value,
+    label: value,
+    value: key,
 }));
 
 function GroupedEngineItem(props: { engineId: string; groupId: string; onClick?: () => void; selected: boolean }) {
@@ -25,7 +25,7 @@ function GroupedEngineItem(props: { engineId: string; groupId: string; onClick?:
             <WUTText variant="body">{getEngineById(props.engineId)?.name}</WUTText>
             <button
                 onClick={() => {
-                    console.log("removeing member", props.engineId, "from group", props.groupId);
+                    console.log("removing member", props.engineId, "from group", props.groupId);
                     removeMember(props.groupId, props.engineId);
                 }}
             >
@@ -137,7 +137,7 @@ export function EngineGroups(props: EngineGroupProps) {
                 <WUTText variant="header" flare={{ dotted: true }}>
                     Engines
                 </WUTText>
-                <select value={selectedEngine()} onChange={(e) => setSelectedEngine(e.target.value as EngineType)}>
+                <select value={selectedEngine()} onChange={(e) => setSelectedEngine(e.target.value as EngineTypeValue)}>
                     {nodeSelectOptions.map((option) => (
                         <option value={option.value}>{option.label}</option>
                     ))}

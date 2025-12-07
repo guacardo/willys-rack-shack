@@ -1,17 +1,26 @@
 export const EngineType = {
-    Oscillator: "oscillator",
-    Gain: "gain",
+    oscillator: "Oscillator",
+    gain: "Gain",
 } as const;
 
-export type EngineType = (typeof EngineType)[keyof typeof EngineType];
-export interface IAudioEngine {
+export type EngineTypeKey = keyof typeof EngineType;
+export type EngineTypeValue = (typeof EngineType)[keyof typeof EngineType];
+export interface IAudioEngine<T extends AudioNode, P extends Record<string, AudioNode | AudioParam>> {
     id: string;
     name: string;
     ctx: AudioContext;
-    ports: Record<string, AudioNode | AudioParam>;
-    engineType: EngineType;
+    ports: P;
+    engineType: EngineTypeKey;
+    setAudioParams(
+        props: Partial<{
+            [K in keyof T]: T[K] extends AudioParam ? number | [number, number] : T[K];
+        }>
+    ): void;
     connect(node: AudioNode | AudioParam): void;
     disconnect(): void;
+    modulate(portName: keyof P, modulator: AudioNode): void;
+    isPortConnected(portName: keyof P): boolean;
+    cleanup(): void;
 }
 
 export function updateAudioParamValue<T extends AudioNode>(
