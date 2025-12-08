@@ -14,7 +14,7 @@ type EnginePortMap = {
 
 type Terminal = {
     id: string;
-    type: EngineTypeKey;
+    type: EngineTypeKey | "destination";
     port: EnginePortMap[EngineTypeKey];
 };
 
@@ -45,6 +45,10 @@ export function getConnections(): Connection[] {
 
 export function clearConnections() {
     setConnections([]);
+}
+
+export function isPortConnected(terminal: Terminal): boolean {
+    return connections().some((c) => (c.from.id === terminal.id && c.from.port === terminal.port) || (c.to.id === terminal.id && c.to.port === terminal.port));
 }
 
 export function syncGroupConnections(groupId: string) {
@@ -83,7 +87,7 @@ export function syncGroupConnections(groupId: string) {
         // Connect output gain to audio destination
         const destConnection: Connection = {
             from: { id: outputGain.id, type: "gain", port: "output" },
-            to: { id: "destination", type: "gain", port: "input" }, // Special ID for destination
+            to: { id: "destination", type: "destination", port: "input" }, // Special ID for destination
         };
 
         const destExists = connections().some(

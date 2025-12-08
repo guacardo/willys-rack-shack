@@ -1,0 +1,22 @@
+.wak-connection-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .indicator {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        background-color: var(--color-indicator-off);
+
+        &.on {
+            background-color: var(--color-indicator-on);
+        }
+        &.off {
+            background-color: var(--color-indicator-off);
+        }
+        &.error {
+            background-color: var(--color-indicator-error);
+        }
+    }
+}

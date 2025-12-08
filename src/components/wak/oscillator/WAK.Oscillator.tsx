@@ -1,8 +1,9 @@
 import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
-import { isOscillatorEngine } from "@/audio/oscillator.engine";
+import { isOscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engine";
 import { getEngineById } from "@/stores/engines.store";
 import { createMemo, createSignal, createEffect, onCleanup } from "solid-js";
+import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
 
 export interface WAKOscillatorProps {
     id: string;
@@ -82,6 +83,12 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
                     <option value="triangle">Triangle</option>
                 </select>
             </label>
+            <div class={styles["ports"]}>
+                {engine() &&
+                    Object.entries(engine()!.ports).map(([portName, _]) => (
+                        <WAKConnectionIndicator label={portName} status={engine()?.isPortConnected(portName as keyof OscillatorPorts) ? "on" : "off"} />
+                    ))}
+            </div>
         </div>
     );
 }

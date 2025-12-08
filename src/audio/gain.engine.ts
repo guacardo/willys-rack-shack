@@ -1,3 +1,4 @@
+import { isPortConnected } from "@/stores/connections.store";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 
 export type GainPorts = {
@@ -54,7 +55,7 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
 
     isPortConnected(portName: keyof GainPorts): boolean {
         let connected = false;
-        console.log(`Checking if port is connected: ${portName}: ${connected}`);
+        connected = isPortConnected({ id: this.id, type: "gain", port: portName });
         return connected;
     }
 

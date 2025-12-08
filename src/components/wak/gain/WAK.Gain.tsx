@@ -3,7 +3,9 @@ import { WUTInput } from "@/components/wut/input/WUT.Input";
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./WAK.Gain.module.scss";
 import { getEngineById } from "@/stores/engines.store";
-import { isGainEngine, type GainPorts } from "@/audio/gain.engine";
+import { isGainEngine } from "@/audio/gain.engine";
+import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
+import { isPortConnected } from "@/stores/connections.store";
 
 export interface WAKGainProps {
     id: string;
@@ -46,13 +48,23 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
             </div>
             <div class={styles["ports"]}>
                 {engine() &&
-                    Object.entries(engine()!.ports).map(([portName, _]) => (
-                        <div class={styles["port"]}>
-                            <WUTText variant="body">
-                                {portName}: {engine()?.isPortConnected(portName as keyof GainPorts) ? "Connected" : "Not Connected"}
-                            </WUTText>
-                        </div>
-                    ))}
+                    Object.entries(engine()!.ports).map(([portName, _]) => {
+                        // Memoize connection status for each port
+                        const statusMemo = createMemo(() =>
+                            isPortConnected({
+                                id: engine()!.id,
+                                type: engine()!.engineType,
+                                port: portName as any,
+                            })
+                                ? "on"
+                                : "off"
+                        );
+                        return (
+                            <div class={styles["port"]}>
+                                <WAKConnectionIndicator label={portName} status={statusMemo()} />
+                            </div>
+                        );
+                    })}
             </div>
         </div>
     );
