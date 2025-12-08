@@ -116,36 +116,30 @@ export function Viewport() {
                 ))}
                 {/* UNGROUPED ENGINES */}
                 {getUngroupedEngines().map((engine) => {
-                    if (isOscillatorEngine(engine)) {
-                        return (
-                            <Snappable
-                                id={engine.id}
-                                initial={{ x: 100, y: 100 }}
-                                getScale={scale}
-                                isSpaceHeld={isSpaceHeld()}
-                                borderColor={isSelected("engine", engine.id) ? "#4f8cff" : undefined}
-                                onClick={() => selectItem("engine", engine.id)}
-                            >
+                    return (
+                        <Snappable
+                            id={engine.id}
+                            initial={{
+                                x: (window.innerWidth / 2 - pan().x) / scale() - 200,
+                                y: (window.innerHeight / 2 - pan().y) / scale() - 200,
+                            }}
+                            getScale={scale}
+                            isSpaceHeld={isSpaceHeld()}
+                            borderColor={isSelected("engine", engine.id) ? "#4f8cff" : undefined}
+                            onClick={() => selectItem("engine", engine.id)}
+                        >
+                            {isOscillatorEngine(engine) ? (
                                 <WAKOscillator id={engine.id} />
-                            </Snappable>
-                        );
-                    } else if (isGainEngine(engine)) {
-                        return (
-                            <Snappable
-                                id={engine.id}
-                                initial={{ x: 100, y: 100 }}
-                                getScale={scale}
-                                isSpaceHeld={isSpaceHeld()}
-                                borderColor={isSelected("engine", engine.id) ? "#4f8cff" : undefined}
-                                onClick={() => selectItem("engine", engine.id)}
-                            >
+                            ) : isGainEngine(engine) ? (
                                 <WAKGain id={engine.id} />
-                            </Snappable>
-                        );
-                    } else {
-                        console.warn("Unknown engine type in Viewport:", engine);
-                    }
-                    return null;
+                            ) : (
+                                (() => {
+                                    console.warn("Unknown engine type in Viewport:", engine);
+                                    return null;
+                                })()
+                            )}
+                        </Snappable>
+                    );
                 })}
             </div>
         </div>
