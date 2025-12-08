@@ -1,8 +1,8 @@
 import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
-import { isOscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engine";
+import { OscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engine";
 import { getEngineById } from "@/stores/engines.store";
-import { createMemo, createSignal, createEffect, onCleanup } from "solid-js";
+import { createSignal, createEffect, onCleanup } from "solid-js";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
 
 export interface WAKOscillatorProps {
@@ -10,10 +10,7 @@ export interface WAKOscillatorProps {
 }
 
 export function WAKOscillator({ id }: WAKOscillatorProps) {
-    const engine = createMemo(() => {
-        const eng = getEngineById(id);
-        return isOscillatorEngine(eng) ? eng : undefined;
-    });
+    const engine = () => getEngineById(id) as OscillatorEngine | undefined;
 
     // Local signals for display values
     const [frequency, setFrequency] = createSignal(engine()?.getFrequency() ?? 440);
@@ -32,43 +29,30 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
                 setFrequency(eng.getFrequency());
                 setDetune(eng.getDetune());
                 setType(eng.getType());
-            }, 30); // ~30fps
+            }, 30);
         }
 
         onCleanup(() => poller && clearInterval(poller));
     });
 
-    const handleFrequencyChange = (e: Event) => {
+    const handleParamChange = (param: "frequency" | "detune" | "type") => (e: Event) => {
         e.stopPropagation();
-        const value = Number((e.target as HTMLInputElement).value);
-        // Just update audio params - poller will sync the UI
-        engine()?.setAudioParams({ frequency: value });
-    };
-
-    const handleDetuneChange = (e: Event) => {
-        e.stopPropagation();
-        const value = Number((e.target as HTMLInputElement).value);
-        engine()?.setAudioParams({ detune: value });
-    };
-
-    const handleTypeChange = (e: Event) => {
-        e.stopPropagation();
-        const value = (e.target as HTMLSelectElement).value as OscillatorType;
-        engine()?.setAudioParams({ type: value });
+        const value = param === "type" ? (e.target as HTMLSelectElement).value : Number((e.target as HTMLInputElement).value);
+        engine()?.setAudioParams({ [param]: value });
     };
 
     return (
         <div class={styles.oscillator}>
             <WUTText variant="subheader">{engine()?.name}</WUTText>
             <label>
-                <input type="range" min="50" max="2000" value={frequency()} onInput={handleFrequencyChange} />
+                <input type="range" min="50" max="2000" value={frequency()} onInput={handleParamChange("frequency")} />
                 <div class={styles["control"]}>
                     <WUTText variant="number">{frequency()}</WUTText>
                     <WUTText variant="unit">hz</WUTText>
                 </div>
             </label>
             <label>
-                <input type="range" min="-1200" max="1200" value={detune()} onInput={handleDetuneChange} />
+                <input type="range" min="-1200" max="1200" value={detune()} onInput={handleParamChange("detune")} />
                 <div class={styles["control"]}>
                     <WUTText variant="number">{detune()}</WUTText>
                     <WUTText variant="unit">ct</WUTText>
@@ -76,7 +60,7 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
             </label>
             <label>
                 <WUTText variant="label">Type:</WUTText>
-                <select value={type()} onChange={handleTypeChange}>
+                <select value={type()} onChange={handleParamChange("type")}>
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>
                     <option value="sawtooth">Sawtooth</option>
