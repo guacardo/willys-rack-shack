@@ -1,7 +1,8 @@
+import { createMemo } from "solid-js";
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./connections.module.scss";
-import { connections } from "@/stores/connections.store";
 import { getEngineName } from "@/stores/engines.store";
+import { getConnections } from "@/stores/connections.store";
 
 interface ConnectionsProps {
     expanded: boolean;
@@ -9,6 +10,8 @@ interface ConnectionsProps {
 }
 
 export function Connections(props: ConnectionsProps) {
+    // Memoize the connections array for reactivity
+    const connections = createMemo(() => getConnections());
     return (
         <div class={`${styles["connections-panel"]} ${props.expanded ? styles.visible : ""}`}>
             <WUTText variant="header">Connections</WUTText>

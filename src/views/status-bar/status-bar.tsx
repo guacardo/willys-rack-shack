@@ -1,7 +1,7 @@
-import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./status-bar.module.scss";
 import { WUTButton } from "@/components/wut/button/WUTButton";
+import { getAudioContextState, resumeAudioContext } from "@/stores/web-audio-context.store";
 
 interface StatusBarProps {
     theme: "light" | "dark" | "neon-green" | "synthwave";
@@ -9,14 +9,12 @@ interface StatusBarProps {
 }
 
 export function StatusBar(props: StatusBarProps) {
-    const { state, resume } = useWebAudioContext();
-
     return (
         <div class={styles["status-bar"]}>
-            <WUTButton variant="primary" onClick={resume} disabled={state() === "running"}>
+            <WUTButton variant="primary" onClick={resumeAudioContext} disabled={getAudioContextState() === "running"}>
                 Play
             </WUTButton>
-            <WUTText variant="body">AudioContext status: {state()}</WUTText>
+            <WUTText variant="body">AudioContext status: {getAudioContextState()}</WUTText>
 
             <select value={props.theme} onChange={(e) => props.setTheme(e.target.value as any)}>
                 <option value="light">Light</option>

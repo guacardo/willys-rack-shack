@@ -4,6 +4,7 @@ import { OscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engin
 import { getEngineById } from "@/stores/engines.store";
 import { createSignal, createEffect, onCleanup } from "solid-js";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
+import { isPortConnected } from "@/stores/connections.store";
 
 export interface WAKOscillatorProps {
     id: string;
@@ -70,7 +71,18 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
             <div class={styles["ports"]}>
                 {engine() &&
                     Object.entries(engine()!.ports).map(([portName, _]) => (
-                        <WAKConnectionIndicator label={portName} status={engine()?.isPortConnected(portName as keyof OscillatorPorts) ? "on" : "off"} />
+                        <WAKConnectionIndicator
+                            label={portName}
+                            status={
+                                isPortConnected({
+                                    id: engine()!.id,
+                                    type: engine()!.engineType,
+                                    port: portName as keyof OscillatorPorts,
+                                })
+                                    ? "on"
+                                    : "off"
+                            }
+                        />
                     ))}
             </div>
         </div>

@@ -6,8 +6,6 @@ import { getEngineById } from "@/stores/engines.store";
 import { GainEngine } from "@/audio/gain.engine";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
 import { isPortConnected } from "@/stores/connections.store";
-import { connections } from "@/stores/connections.store";
-import type { EngineTypeKey } from "@/audio/engine";
 
 export interface WAKGainProps {
     id: string;
@@ -38,18 +36,6 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
         engine()?.setAudioParams({ gain: value });
     };
 
-    function getPortStatus(engineId: string, engineType: EngineTypeKey, portName: string): "on" | "off" {
-        // This function will re-run whenever connections() changes
-        connections();
-        return isPortConnected({
-            id: engineId,
-            type: engineType,
-            port: portName as any,
-        })
-            ? "on"
-            : "off";
-    }
-
     return (
         <div class={`${styles["wak-gain"]} ${styles[orientation]}`}>
             <div class={`${styles["control"]}`}>
@@ -61,7 +47,18 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
                 {engine() &&
                     Object.entries(engine()!.ports).map(([portName, _]) => (
                         <div class={styles["port"]}>
-                            <WAKConnectionIndicator label={portName} status={getPortStatus(engine()!.id, engine()!.engineType, portName)} />
+                            <WAKConnectionIndicator
+                                label={portName}
+                                status={
+                                    isPortConnected({
+                                        id: engine()!.id,
+                                        type: engine()!.engineType,
+                                        port: portName as keyof GainEngine["ports"],
+                                    })
+                                        ? "on"
+                                        : "off"
+                                }
+                            />
                         </div>
                     ))}
             </div>

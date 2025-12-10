@@ -19,7 +19,6 @@ export interface IAudioEngine<T extends AudioNode, P extends Record<string, Audi
     connect(node: AudioNode | AudioParam): void;
     disconnect(): void;
     modulate(portName: keyof P, modulator: AudioNode): void;
-    isPortConnected(portName: keyof P): boolean;
     cleanup(): void;
 }
 

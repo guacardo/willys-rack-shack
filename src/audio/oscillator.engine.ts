@@ -66,12 +66,6 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
         }
     }
 
-    isPortConnected(portName: keyof OscillatorPorts): boolean {
-        let connected = false;
-        console.log(`Checking if port is connected: ${portName}: ${connected}`);
-        return connected;
-    }
-
     cleanup(): void {
         console.log(`Cleaning up OscillatorEngine ${this.id}`);
         this.disconnect();

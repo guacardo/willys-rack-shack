@@ -1,4 +1,3 @@
-import { isPortConnected } from "@/stores/connections.store";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 
 export type GainPorts = {
@@ -51,12 +50,6 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
         } else {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
-    }
-
-    isPortConnected(portName: keyof GainPorts): boolean {
-        let connected = false;
-        connected = isPortConnected({ id: this.id, type: "gain", port: portName });
-        return connected;
     }
 
     cleanup(): void {

@@ -5,7 +5,7 @@ import { createSignal } from "solid-js";
 import { getEngineById } from "./engines.store";
 import type { IAudioEngine } from "@/audio/engine";
 import { getMembersOfGroup } from "./groups.store";
-import { getAudioContext } from "@/contexts/web-audio-context";
+import { getAudioContext } from "./web-audio-context.store";
 
 type EnginePortMap = {
     oscillator: keyof OscillatorPorts;
@@ -18,37 +18,85 @@ type Terminal = {
     port: EnginePortMap[EngineTypeKey];
 };
 
+type TerminalKey = string;
+
 export type Connection = {
     from: Terminal;
     to: Terminal;
 };
 
-const [connections, setConnections] = createSignal<Connection[]>([]);
+function terminalToKey(terminal: Terminal): TerminalKey {
+    return `${terminal.id}|${terminal.type}|${terminal.port}` as TerminalKey;
+}
 
+function keyToTerminal(key: string): Terminal {
+    const [id, type, port] = key.split("|");
+    return { id, type: type as EngineTypeKey | "destination", port: port as EnginePortMap[EngineTypeKey] };
+}
+
+const [connectionsMap, setConnectionsMap] = createSignal<Map<TerminalKey, Set<TerminalKey>>>(new Map());
+
+// Add a connection (bi-directional)
 export function addConnection(connection: Connection) {
-    setConnections((prev) => [...prev, connection]);
+    setConnectionsMap((prev) => {
+        const map = new Map(prev);
+        const fromKey = terminalToKey(connection.from);
+        const toKey = terminalToKey(connection.to);
+        // Add to 'from'
+        if (!map.has(fromKey)) map.set(fromKey, new Set());
+        map.get(fromKey)!.add(toKey);
+        // Add to 'to' (bi-directional)
+        if (!map.has(toKey)) map.set(toKey, new Set());
+        map.get(toKey)!.add(fromKey);
+        return map;
+    });
 }
 
+// Remove a connection (bi-directional)
 export function removeConnection(connection: Connection) {
-    // todo: call each engine's disconnect method (remove from web audio graph), then remove from store.
-    setConnections((prev) =>
-        prev.filter(
-            (c) =>
-                !(c.from.id === connection.from.id && c.from.port === connection.from.port && c.to.id === connection.to.id && c.to.port === connection.to.port)
-        )
-    );
+    setConnectionsMap((prev) => {
+        const map = new Map(prev);
+        const fromKey = terminalToKey(connection.from);
+        const toKey = terminalToKey(connection.to);
+        // Remove from 'from'
+        if (map.has(fromKey)) {
+            map.get(fromKey)!.delete(toKey);
+            if (map.get(fromKey)!.size === 0) map.delete(fromKey);
+        }
+        // Remove from 'to'
+        if (map.has(toKey)) {
+            map.get(toKey)!.delete(fromKey);
+            if (map.get(toKey)!.size === 0) map.delete(toKey);
+        }
+        return map;
+    });
 }
 
+// Get all connections as an array of Connection objects
 export function getConnections(): Connection[] {
-    return connections();
+    const arr: Connection[] = [];
+    const map = connectionsMap();
+    for (const [fromKey, toSet] of map.entries()) {
+        for (const toKey of toSet) {
+            // Only push one direction to avoid duplicates
+            if (fromKey < toKey) {
+                arr.push({ from: keyToTerminal(fromKey), to: keyToTerminal(toKey) });
+            }
+        }
+    }
+    return arr;
 }
 
+// Remove all connections
 export function clearConnections() {
-    setConnections([]);
+    setConnectionsMap(new Map());
 }
 
+// Check if a terminal is connected to any other
 export function isPortConnected(terminal: Terminal): boolean {
-    return connections().some((c) => (c.from.id === terminal.id && c.from.port === terminal.port) || (c.to.id === terminal.id && c.to.port === terminal.port));
+    const key = terminalToKey(terminal);
+    const map = connectionsMap();
+    return map.has(key) && map.get(key)!.size > 0;
 }
 
 export function syncGroupConnections(groupId: string) {
@@ -65,6 +113,9 @@ export function syncGroupConnections(groupId: string) {
     if (sources.length > 0 && gains.length > 0) {
         const outputGain = gains[0]; // First gain is the output gain
 
+        // Get all current connections as an array
+        const allConnections = getConnections();
+
         // Connect all sources to the output gain
         sources.forEach((source) => {
             const connection: Connection = {
@@ -73,7 +124,7 @@ export function syncGroupConnections(groupId: string) {
             };
 
             // Check if connection already exists
-            const exists = connections().some(
+            const exists = allConnections.some(
                 (c) =>
                     c.from.id === connection.from.id && c.from.port === connection.from.port && c.to.id === connection.to.id && c.to.port === connection.to.port
             );
@@ -90,7 +141,7 @@ export function syncGroupConnections(groupId: string) {
             to: { id: "destination", type: "destination", port: "input" }, // Special ID for destination
         };
 
-        const destExists = connections().some(
+        const destExists = allConnections.some(
             (c) => c.from.id === destConnection.from.id && c.from.port === destConnection.from.port && c.to.id === destConnection.to.id
         );
 
@@ -101,4 +152,4 @@ export function syncGroupConnections(groupId: string) {
     }
 }
 
-export { connections };
+export { connectionsMap };

@@ -1,7 +1,6 @@
 import "./theme.scss";
 import { Viewport } from "./views/viewport/viewport";
 import { createSignal, createEffect } from "solid-js";
-import { WebAudioProvider } from "./contexts/web-audio-context";
 import { StatusBar } from "./views/status-bar/status-bar";
 import { ContextBar } from "./views/context-bar/context-bar";
 import { EngineDetails } from "./views/engine-details/engine-details";
@@ -17,7 +16,7 @@ function App() {
     });
 
     return (
-        <WebAudioProvider>
+        <>
             <StatusBar theme={theme()} setTheme={setTheme} />
             <ContextBar visible={true}>
                 <EngineGroups expanded={true} />
@@ -25,7 +24,7 @@ function App() {
                 <Connections expanded={true} />
             </ContextBar>
             <Viewport />
-        </WebAudioProvider>
+        </>
     );
 }
 

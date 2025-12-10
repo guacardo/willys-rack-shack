@@ -5,10 +5,10 @@ import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { createSignal } from "solid-js";
 import { addEngine, getEngineById, getUngroupedEngines, removeEngine } from "@/stores/engines.store";
-import { useWebAudioContext } from "@/contexts/web-audio-context";
 import { getAllGroups, addMember, removeMember, getMembersOfGroup, setGroupName, groupTemplateOptions, createGroupFromTemplate } from "@/stores/groups.store";
 import { isSelected, selectItem } from "@/stores/selection.store";
 import { WUTButton } from "@/components/wut/button/WUTButton";
+import { getAudioContext } from "@/stores/web-audio-context.store";
 
 interface EngineGroupProps {
     expanded: boolean;
@@ -74,7 +74,7 @@ function UngroupedEngineItem(props: { engineId: string; onClick?: () => void; se
 }
 
 export function EngineGroups(props: EngineGroupProps) {
-    const { audioCtx } = useWebAudioContext();
+    const audioCtx = getAudioContext();
     const [selectedEngine, setSelectedEngine] = createSignal(nodeSelectOptions[0].value);
     const [selectedTemplate, setSelectedTemplate] = createSignal<keyof typeof groupTemplateOptions>("empty");
 
