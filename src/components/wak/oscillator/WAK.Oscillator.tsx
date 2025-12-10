@@ -4,7 +4,7 @@ import { OscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engin
 import { getEngineById } from "@/stores/engines.store";
 import { createSignal, createEffect, onCleanup } from "solid-js";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
-import { isPortConnected } from "@/stores/connections.store";
+import { isPortConnected, connectionsMap, terminalToKey } from "@/stores/connections.store";
 
 export interface WAKOscillatorProps {
     id: string;
@@ -70,20 +70,25 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
             </label>
             <div class={styles["ports"]}>
                 {engine() &&
-                    Object.entries(engine()!.ports).map(([portName, _]) => (
-                        <WAKConnectionIndicator
-                            label={portName}
-                            status={
-                                isPortConnected({
-                                    id: engine()!.id,
-                                    type: engine()!.engineType,
-                                    port: portName as keyof OscillatorPorts,
-                                })
-                                    ? "on"
-                                    : "off"
-                            }
-                        />
-                    ))}
+                    Object.entries(engine()!.ports).map(([portName, _]) => {
+                        const termKey = terminalToKey({
+                            id: engine()!.id,
+                            type: engine()!.engineType,
+                            port: portName as keyof OscillatorPorts,
+                        });
+                        const map = connectionsMap();
+                        let status: "on" | "off" | "who-knows" = "who-knows";
+                        if (map.has(termKey)) {
+                            status = isPortConnected({
+                                id: engine()!.id,
+                                type: engine()!.engineType,
+                                port: portName as keyof OscillatorPorts,
+                            })
+                                ? "on"
+                                : "off";
+                        }
+                        return <WAKConnectionIndicator label={portName} status={status} />;
+                    })}
             </div>
         </div>
     );

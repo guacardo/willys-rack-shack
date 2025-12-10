@@ -25,11 +25,11 @@ export type Connection = {
     to: Terminal;
 };
 
-function terminalToKey(terminal: Terminal): TerminalKey {
+export function terminalToKey(terminal: Terminal): TerminalKey {
     return `${terminal.id}|${terminal.type}|${terminal.port}` as TerminalKey;
 }
 
-function keyToTerminal(key: string): Terminal {
+export function keyToTerminal(key: string): Terminal {
     const [id, type, port] = key.split("|");
     return { id, type: type as EngineTypeKey | "destination", port: port as EnginePortMap[EngineTypeKey] };
 }
@@ -50,6 +50,8 @@ export function addConnection(connection: Connection) {
         map.get(toKey)!.add(fromKey);
         return map;
     });
+
+    console.log(connectionsMap());
 }
 
 // Remove a connection (bi-directional)
