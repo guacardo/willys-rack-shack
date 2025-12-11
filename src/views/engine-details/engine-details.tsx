@@ -18,7 +18,6 @@ export function EngineDetails() {
             <Show when={engine()} keyed>
                 {(eng) => (
                     <div>
-                        <WUTText variant="body">Module ID: {eng.id}</WUTText>
                         <input type="text" value={eng.name} onInput={(e: InputEvent) => updateEngine(eng.id, { name: (e.target as HTMLInputElement).value })} />
                         {isOscillatorEngine(eng) && <WAKOscillator id={eng.id} />}
                         {eng.engineType === "gain" && <WAKGain id={eng.id} />}

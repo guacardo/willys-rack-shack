@@ -42,6 +42,20 @@ export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly
             addEngine(outGain);
             id = createGroup("Single Osc", [osc.id, outGain.id]);
             break;
+        case "poly-voice":
+            const osc1 = new OscillatorEngine(audioCtx);
+            const osc2 = new OscillatorEngine(audioCtx);
+            const osc3 = new OscillatorEngine(audioCtx);
+            const gain1 = new GainEngine(audioCtx);
+            osc1.setAudioParams({ frequency: 150 });
+            osc2.setAudioParams({ frequency: 200 });
+            osc3.setAudioParams({ frequency: 300 });
+            addEngine(osc1);
+            addEngine(osc2);
+            addEngine(osc3);
+            addEngine(gain1);
+            id = createGroup("Poly Voice", [osc1.id, osc2.id, osc3.id, gain1.id]);
+            break;
     }
 
     syncGroupConnections(id);
