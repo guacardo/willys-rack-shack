@@ -13,6 +13,7 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
     osc: OscillatorNode;
     ports: OscillatorPorts;
     engineType = "oscillator" as const;
+    dutyCycle: number = 0.5;
 
     constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
         this.id = id;
@@ -33,6 +34,21 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
         updateAudioParamValue(this.ctx, this.osc, props);
     }
 
+    setPulseWave(duty: number) {
+        const safeDuty = Math.max(0.01, Math.min(0.99, duty));
+        const n = 4096;
+        const real = new Float32Array(n);
+        const imag = new Float32Array(n);
+
+        for (let i = 1; i < n; i++) {
+            real[i] = (2 / (i * Math.PI)) * Math.sin(i * Math.PI * safeDuty);
+            imag[i] = 0;
+        }
+
+        const wave = this.ctx.createPeriodicWave(real, imag);
+        this.osc.setPeriodicWave(wave);
+    }
+
     getName(): string {
         return this.name;
     }
@@ -43,6 +59,10 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
 
     getDetune() {
         return this.osc.detune.value;
+    }
+
+    getDutyCycle() {
+        return this.dutyCycle;
     }
 
     getType() {

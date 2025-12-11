@@ -27,7 +27,7 @@ export function createGroup(name: string, members: string[] = []) {
     return id;
 }
 
-export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly-voice" | "lfo-mod", audioCtx: AudioContext): string {
+export function createGroupFromTemplate(template: GroupTemplate, audioCtx: AudioContext): string {
     let id = "";
     switch (template) {
         case "empty":
