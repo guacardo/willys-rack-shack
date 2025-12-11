@@ -1,3 +1,6 @@
+import { removeAllConnectionsForEngine } from "@/stores/connections.store";
+import { removeMember } from "@/stores/groups.store";
+
 export const EngineType = {
     oscillator: "Oscillator",
     gain: "Gain",
@@ -51,4 +54,9 @@ export function updateAudioParamValue<T extends AudioNode>(
     }
 
     return node;
+}
+
+export function removeEngineFromGroupWithConnections(groupId: string, engineId: string) {
+    removeAllConnectionsForEngine(engineId);
+    removeMember(groupId, engineId);
 }

@@ -51,12 +51,12 @@ export function createGroupFromTemplate(template: "empty" | "single-osc" | "poly
 
 export function addMember(groupId: string, memberId: string) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.includes(memberId) ? g.members : [...g.members, memberId] } : g)));
+    // TODO: careful with this. should probably move this to a controller, not here.
     syncGroupConnections(groupId);
 }
 
 export function removeMember(groupId: string, memberId: string) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.filter((id) => id !== memberId) } : g)));
-    syncGroupConnections(groupId);
 }
 
 export function deleteGroup(groupId: string) {

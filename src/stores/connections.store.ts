@@ -50,12 +50,33 @@ export function addConnection(connection: Connection) {
         map.get(toKey)!.add(fromKey);
         return map;
     });
-
-    console.log(connectionsMap());
 }
 
-// Remove a connection (bi-directional)
 export function removeConnection(connection: Connection) {
+    // Disconnect from the audio graph
+    const fromEngine = getEngineById(connection.from.id);
+    const toEngine = getEngineById(connection.to.id);
+
+    // If the from port is an output (AudioNode), disconnect it from the to port (AudioNode or AudioParam)
+    if (fromEngine && fromEngine.ports && connection.from.port in fromEngine.ports) {
+        const fromPort = fromEngine.ports[connection.from.port];
+        if (fromPort instanceof AudioNode) {
+            // Try to disconnect from the specific destination node/param
+            if (toEngine && toEngine.ports && connection.to.port in toEngine.ports) {
+                const toPort = toEngine.ports[connection.to.port];
+                try {
+                    fromPort.disconnect(toPort);
+                } catch (e) {
+                    // Fallback: disconnect all if specific disconnect fails
+                    fromPort.disconnect();
+                }
+            } else {
+                fromPort.disconnect();
+            }
+        }
+    }
+
+    // Now update the map as before
     setConnectionsMap((prev) => {
         const map = new Map(prev);
         const fromKey = terminalToKey(connection.from);
@@ -71,6 +92,16 @@ export function removeConnection(connection: Connection) {
             if (map.get(toKey)!.size === 0) map.delete(toKey);
         }
         return map;
+    });
+}
+
+// Remove all connections for a given engine ID
+export function removeAllConnectionsForEngine(engineId: string) {
+    const allConnections = getConnections();
+    allConnections.forEach((conn) => {
+        if (conn.from.id === engineId || conn.to.id === engineId) {
+            removeConnection(conn);
+        }
     });
 }
 
@@ -102,6 +133,7 @@ export function isPortConnected(terminal: Terminal): boolean {
 }
 
 export function syncGroupConnections(groupId: string) {
+    console.log("groupId in syncGroupConnections:", groupId);
     const audioCtx = getAudioContext();
     const memberIds = getMembersOfGroup(groupId);
     // Only keep defined engines and type them as IAudioEngine<any, any>
