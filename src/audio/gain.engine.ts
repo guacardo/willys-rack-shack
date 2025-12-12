@@ -1,5 +1,6 @@
 import { createSignal, type Accessor, type Setter } from "solid-js";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
+import { addEngine } from "@/stores/engines.store";
 
 export type GainPorts = {
     input: GainNode;
@@ -30,6 +31,8 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
             output: this.gain,
             gain: this.gain.gain,
         };
+
+        addEngine(this);
     }
 
     setAudioParams(props: Partial<{ gain: number | [number, number] }>) {
@@ -43,33 +46,15 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
         return this.gain.gain.value;
     }
 
-    connect(destination: AudioNode): void {
-        this.ports.output.connect(destination);
-    }
-
-    disconnect(): void {
-        this.ports.output.disconnect();
-    }
-
-    modulate(portName: keyof GainPorts, modulator: AudioNode): void {
-        const port = this.ports[portName];
-        if (port instanceof AudioParam) {
-            modulator.connect(port);
-        } else {
-            throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
-        }
-    }
-
     tick(): void {
         console.log(`Tick for GainEngine ${this.id}`);
     }
 
     cleanup(): void {
         console.log(`Cleaning up GainEngine ${this.id}`);
-        this.disconnect();
     }
 }
 
-export function isGainEngine(obj: any): obj is GainEngine & { gain: GainNode } {
-    return obj && obj.gain instanceof GainNode;
+export function isGainEngine(obj: any): obj is GainEngine {
+    return obj && obj.engineType === "gain" && obj.gain instanceof GainNode;
 }

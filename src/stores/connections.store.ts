@@ -1,20 +1,18 @@
 import type { OscillatorPorts } from "@/audio/oscillator.engine";
 import type { GainPorts } from "@/audio/gain.engine";
+import type { LFOPorts } from "@/audio/lfo.engine";
 import type { EngineTypeKey } from "@/audio/engine";
 import { createSignal } from "solid-js";
-import { getEngineById } from "./engines.store";
-import type { IAudioEngine } from "@/audio/engine";
-import { getMembersOfGroup } from "./groups.store";
-import { getAudioContext } from "./web-audio-context.store";
 
 export type ConnectionStatus = "on" | "off" | "who-knows" | "error";
 
 type EnginePortMap = {
     oscillator: keyof OscillatorPorts;
     gain: keyof GainPorts;
+    lfo: keyof LFOPorts;
 };
 
-type Terminal = {
+export type Terminal = {
     id: string;
     type: EngineTypeKey | "destination";
     port: EnginePortMap[EngineTypeKey];
@@ -55,44 +53,22 @@ export function addConnection(connection: Connection) {
 }
 
 export function removeConnection(connection: Connection) {
-    // Disconnect from the audio graph
-    const fromEngine = getEngineById(connection.from.id);
-    const toEngine = getEngineById(connection.to.id);
-
-    // If the from port is an output (AudioNode), disconnect it from the to port (AudioNode or AudioParam)
-    if (fromEngine && fromEngine.ports && connection.from.port in fromEngine.ports) {
-        const fromPort = fromEngine.ports[connection.from.port];
-        if (fromPort instanceof AudioNode) {
-            // Try to disconnect from the specific destination node/param
-            if (toEngine && toEngine.ports && connection.to.port in toEngine.ports) {
-                const toPort = toEngine.ports[connection.to.port];
-                try {
-                    fromPort.disconnect(toPort);
-                } catch (e) {
-                    // Fallback: disconnect all if specific disconnect fails
-                    fromPort.disconnect();
-                }
-            } else {
-                fromPort.disconnect();
-            }
-        }
-    }
-
-    // Now update the map as before
+    // ONLY handle state updates - no Web Audio stuff
     setConnectionsMap((prev) => {
         const map = new Map(prev);
         const fromKey = terminalToKey(connection.from);
         const toKey = terminalToKey(connection.to);
-        // Remove from 'from'
+
         if (map.has(fromKey)) {
             map.get(fromKey)!.delete(toKey);
             if (map.get(fromKey)!.size === 0) map.delete(fromKey);
         }
-        // Remove from 'to'
+
         if (map.has(toKey)) {
             map.get(toKey)!.delete(fromKey);
             if (map.get(toKey)!.size === 0) map.delete(toKey);
         }
+
         return map;
     });
 }
@@ -133,60 +109,6 @@ export function getPortStatus(terminal: Terminal): ConnectionStatus {
     const map = connectionsMap();
 
     return map.has(key) && map.get(key)!.size > 0 ? "on" : "off";
-}
-
-export function syncGroupConnections(groupId: string) {
-    console.log("groupId in syncGroupConnections:", groupId);
-    const audioCtx = getAudioContext();
-    const memberIds = getMembersOfGroup(groupId);
-    // Only keep defined engines and type them as IAudioEngine<any, any>
-    const engines = memberIds.map((id) => getEngineById(id)).filter((e): e is IAudioEngine<any, any> => e !== undefined);
-
-    // Find sources (oscillators) and gains, with correct type guards
-    const sources = engines.filter((e): e is IAudioEngine<any, any> & { engineType: "oscillator" } => e.engineType === "oscillator");
-    const gains = engines.filter((e): e is IAudioEngine<any, any> & { engineType: "gain" } => e.engineType === "gain");
-
-    // Only auto-connect if this is a "source group" (has both sources and gains)
-    if (sources.length > 0 && gains.length > 0) {
-        const outputGain = gains[0]; // First gain is the output gain
-
-        // Get all current connections as an array
-        const allConnections = getConnections();
-
-        // Connect all sources to the output gain
-        sources.forEach((source) => {
-            const connection: Connection = {
-                from: { id: source.id, type: "oscillator", port: "output" },
-                to: { id: outputGain.id, type: "gain", port: "input" },
-            };
-
-            // Check if connection already exists
-            const exists = allConnections.some(
-                (c) =>
-                    c.from.id === connection.from.id && c.from.port === connection.from.port && c.to.id === connection.to.id && c.to.port === connection.to.port
-            );
-
-            if (!exists) {
-                source.connect(outputGain.ports.input as AudioNode);
-                addConnection(connection);
-            }
-        });
-
-        // Connect output gain to audio destination
-        const destConnection: Connection = {
-            from: { id: outputGain.id, type: "gain", port: "output" },
-            to: { id: "destination", type: "destination", port: "input" }, // Special ID for destination
-        };
-
-        const destExists = allConnections.some(
-            (c) => c.from.id === destConnection.from.id && c.from.port === destConnection.from.port && c.to.id === destConnection.to.id
-        );
-
-        if (!destExists) {
-            addConnection(destConnection);
-            outputGain.connect(audioCtx.destination);
-        }
-    }
 }
 
 export { connectionsMap };

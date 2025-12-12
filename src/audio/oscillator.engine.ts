@@ -1,3 +1,4 @@
+import { addEngine } from "@/stores/engines.store";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 import { createSignal, type Accessor, type Setter } from "solid-js";
 
@@ -45,6 +46,8 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
             detune: this.osc.detune,
             dutyCycle: this.dutyCycle.offset,
         };
+
+        addEngine(this);
     }
 
     setAudioParams(props: Partial<{ frequency: number | [number, number]; detune: number | [number, number]; type: OscillatorType }>) {
@@ -97,42 +100,17 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
         return this.typeSignal[0]();
     }
 
-    connect(destination: AudioNode): void {
-        this.ports.output.connect(destination);
-    }
-
-    disconnect(): void {
-        this.ports.output.disconnect();
-    }
-
-    modulate(portName: keyof OscillatorPorts, modulator: AudioNode): void {
-        const port = this.ports[portName];
-        if (port instanceof AudioParam) {
-            modulator.connect(port);
-        } else {
-            throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
-        }
-    }
-
     tick(): void {
         console.log(`Ticking OscillatorEngine ${this.id}`);
     }
 
     cleanup(): void {
         console.log(`Cleaning up OscillatorEngine ${this.id}`);
-        this.disconnect();
         this.osc.stop();
+        this.osc.disconnect();
     }
 }
 
 export function isOscillatorEngine(obj: any): obj is OscillatorEngine & { osc: OscillatorNode } {
-    return (
-        obj &&
-        typeof obj === "object" &&
-        obj.ctx instanceof AudioContext &&
-        typeof obj.ports === "object" &&
-        typeof obj.connect === "function" &&
-        typeof obj.disconnect === "function" &&
-        obj.osc instanceof OscillatorNode
-    );
+    return obj && typeof obj === "object" && obj.ctx instanceof AudioContext && typeof obj.ports === "object" && obj.osc instanceof OscillatorNode;
 }

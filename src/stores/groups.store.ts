@@ -1,8 +1,7 @@
 import { createStore } from "solid-js/store";
-import { addEngine } from "./engines.store";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
-import { syncGroupConnections } from "./connections.store";
+import { audioConnectionService } from "@/services/audio-connection.service";
 
 // group.store.ts
 export type Group = {
@@ -31,15 +30,12 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
     let id = "";
     switch (template) {
         case "empty":
-            const gain = new GainEngine(audioCtx);
-            addEngine(gain);
-            id = createGroup("Empty Group", [gain.id]);
+            id = createGroup("Empty Group", [new GainEngine(audioCtx).id]);
             break;
         case "single-osc":
             const osc = new OscillatorEngine(audioCtx);
             const outGain = new GainEngine(audioCtx);
-            addEngine(osc);
-            addEngine(outGain);
+
             id = createGroup("Single Osc", [osc.id, outGain.id]);
             break;
         case "poly-voice":
@@ -50,23 +46,28 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
             osc1.setAudioParams({ frequency: 150 });
             osc2.setAudioParams({ frequency: 200 });
             osc3.setAudioParams({ frequency: 300 });
-            addEngine(osc1);
-            addEngine(osc2);
-            addEngine(osc3);
-            addEngine(gain1);
             id = createGroup("Poly Voice", [osc1.id, osc2.id, osc3.id, gain1.id]);
+            break;
+        case "lfo-mod":
+            const lfo = new OscillatorEngine(audioCtx);
+            const lfoGain = new GainEngine(audioCtx);
+            const modulatedOsc = new OscillatorEngine(audioCtx);
+            lfo.setAudioParams({ frequency: 5 });
+            // lfoGain.setAudioParams({ gain: 100 });
+            id = createGroup("LFO Mod", [lfo.id, lfoGain.id, modulatedOsc.id]);
             break;
     }
 
-    syncGroupConnections(id);
+    // Use the service to handle all connections
+    audioConnectionService.syncGroupConnections(id);
 
     return id;
 }
 
 export function addMember(groupId: string, memberId: string) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.includes(memberId) ? g.members : [...g.members, memberId] } : g)));
-    // TODO: careful with this. should probably move this to a controller, not here.
-    syncGroupConnections(groupId);
+    // Use the service to sync connections
+    audioConnectionService.syncGroupConnections(groupId);
 }
 
 export function removeMember(groupId: string, memberId: string) {

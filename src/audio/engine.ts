@@ -4,6 +4,7 @@ import { removeMember } from "@/stores/groups.store";
 export const EngineType = {
     oscillator: "Oscillator",
     gain: "Gain",
+    lfo: "LFO",
 } as const;
 
 export type EngineTypeKey = keyof typeof EngineType;
@@ -19,9 +20,6 @@ export interface IAudioEngine<T extends AudioNode, P extends Record<string, Audi
             [K in keyof T]: T[K] extends AudioParam ? number | [number, number] : T[K];
         }>
     ): void;
-    connect(node: AudioNode | AudioParam): void;
-    disconnect(): void;
-    modulate(portName: keyof P, modulator: AudioNode): void;
     tick(): void;
     cleanup(): void;
 }
