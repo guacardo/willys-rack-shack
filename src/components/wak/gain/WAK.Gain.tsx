@@ -4,7 +4,7 @@ import styles from "./WAK.Gain.module.scss";
 import { getEngineById } from "@/stores/engines.store";
 import { GainEngine } from "@/audio/gain.engine";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
-import { connectionsMap, isPortConnected, terminalToKey } from "@/stores/connections.store";
+import { getPortStatus } from "@/stores/connections.store";
 
 export interface WAKGainProps {
     id: string;
@@ -30,22 +30,11 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
             <div class={styles["ports"]}>
                 {engine() &&
                     Object.entries(engine()!.ports).map(([portName, _]) => {
-                        const termKey = terminalToKey({
+                        const status = getPortStatus({
                             id: engine()!.id,
                             type: engine()!.engineType,
                             port: portName as keyof GainEngine["ports"],
                         });
-                        const map = connectionsMap();
-                        let status: "on" | "off" | "who-knows" = "who-knows";
-                        if (map.has(termKey)) {
-                            status = isPortConnected({
-                                id: engine()!.id,
-                                type: engine()!.engineType,
-                                port: portName as keyof GainEngine["ports"],
-                            })
-                                ? "on"
-                                : "off";
-                        }
                         return (
                             <div class={styles["port"]}>
                                 <WAKConnectionIndicator label={portName} status={status} />

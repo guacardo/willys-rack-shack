@@ -3,7 +3,7 @@ import { WUTText } from "../../wut/text/WUT.Text";
 import { OscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engine";
 import { getEngineById } from "@/stores/engines.store";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
-import { isPortConnected, connectionsMap, terminalToKey } from "@/stores/connections.store";
+import { getPortStatus } from "@/stores/connections.store";
 
 export interface WAKOscillatorProps {
     id: string;
@@ -68,22 +68,11 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
             <div class={styles["ports"]}>
                 {engine() &&
                     Object.entries(engine()!.ports).map(([portName, _]) => {
-                        const termKey = terminalToKey({
+                        const status = getPortStatus({
                             id: engine()!.id,
                             type: engine()!.engineType,
                             port: portName as keyof OscillatorPorts,
                         });
-                        const map = connectionsMap();
-                        let status: "on" | "off" | "who-knows" = "who-knows";
-                        if (map.has(termKey)) {
-                            status = isPortConnected({
-                                id: engine()!.id,
-                                type: engine()!.engineType,
-                                port: portName as keyof OscillatorPorts,
-                            })
-                                ? "on"
-                                : "off";
-                        }
                         return <WAKConnectionIndicator label={portName} status={status} />;
                     })}
             </div>

@@ -7,6 +7,8 @@ import type { IAudioEngine } from "@/audio/engine";
 import { getMembersOfGroup } from "./groups.store";
 import { getAudioContext } from "./web-audio-context.store";
 
+export type ConnectionStatus = "on" | "off" | "who-knows" | "error";
+
 type EnginePortMap = {
     oscillator: keyof OscillatorPorts;
     gain: keyof GainPorts;
@@ -126,10 +128,11 @@ export function clearConnections() {
 }
 
 // Check if a terminal is connected to any other
-export function isPortConnected(terminal: Terminal): boolean {
+export function getPortStatus(terminal: Terminal): ConnectionStatus {
     const key = terminalToKey(terminal);
     const map = connectionsMap();
-    return map.has(key) && map.get(key)!.size > 0;
+
+    return map.has(key) && map.get(key)!.size > 0 ? "on" : "off";
 }
 
 export function syncGroupConnections(groupId: string) {

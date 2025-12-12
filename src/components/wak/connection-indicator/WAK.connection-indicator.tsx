@@ -1,9 +1,10 @@
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./WAK.connection-indicator.module.scss";
+import type { ConnectionStatus } from "@/stores/connections.store";
 
 interface WAKConnectionIndicatorProps {
     label: string;
-    status: "on" | "off" | "who-knows" | "error";
+    status: ConnectionStatus;
 }
 
 export function WAKConnectionIndicator({ label, status }: WAKConnectionIndicatorProps) {
