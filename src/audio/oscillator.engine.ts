@@ -1,9 +1,11 @@
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
+import { createSignal, type Accessor, type Setter } from "solid-js";
 
 export type OscillatorPorts = {
     output: OscillatorNode;
     frequency: AudioParam;
     detune: AudioParam;
+    dutyCycle: AudioParam;
 };
 
 export class OscillatorEngine implements IAudioEngine<OscillatorNode, OscillatorPorts> {
@@ -12,8 +14,14 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
     ctx: AudioContext;
     osc: OscillatorNode;
     ports: OscillatorPorts;
+    dutyCycle: ConstantSourceNode;
     engineType = "oscillator" as const;
-    dutyCycle: number = 0.5;
+
+    // Signals for UI reactivity
+    readonly frequencySignal: [Accessor<number>, Setter<number>];
+    readonly detuneSignal: [Accessor<number>, Setter<number>];
+    readonly dutyCycleSignal: [Accessor<number>, Setter<number>];
+    readonly typeSignal: [Accessor<OscillatorType>, Setter<OscillatorType>];
 
     constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
         this.id = id;
@@ -22,16 +30,35 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
         this.osc.type = "sine";
         this.osc.frequency.value = 220;
         this.osc.start();
+        this.dutyCycle = ctx.createConstantSource();
+        this.dutyCycle.start();
+
+        // Signals for UI
+        this.frequencySignal = createSignal(this.osc.frequency.value);
+        this.detuneSignal = createSignal(this.osc.detune.value);
+        this.dutyCycleSignal = createSignal(this.dutyCycle.offset.value);
+        this.typeSignal = createSignal<OscillatorType>(this.osc.type);
 
         this.ports = {
             output: this.osc,
             frequency: this.osc.frequency,
             detune: this.osc.detune,
+            dutyCycle: this.dutyCycle.offset,
         };
     }
 
     setAudioParams(props: Partial<{ frequency: number | [number, number]; detune: number | [number, number]; type: OscillatorType }>) {
         updateAudioParamValue(this.ctx, this.osc, props);
+        // Update signals
+        if (props.frequency !== undefined) {
+            this.frequencySignal[1](Array.isArray(props.frequency) ? props.frequency[0] : props.frequency);
+        }
+        if (props.detune !== undefined) {
+            this.detuneSignal[1](Array.isArray(props.detune) ? props.detune[0] : props.detune);
+        }
+        if (props.type !== undefined) {
+            this.typeSignal[1](props.type);
+        }
     }
 
     setPulseWave(duty: number) {
@@ -47,6 +74,7 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
 
         const wave = this.ctx.createPeriodicWave(real, imag);
         this.osc.setPeriodicWave(wave);
+        this.dutyCycleSignal[1](safeDuty);
     }
 
     getName(): string {
@@ -54,19 +82,19 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
     }
 
     getFrequency() {
-        return this.osc.frequency.value;
+        return this.frequencySignal[0]();
     }
 
     getDetune() {
-        return this.osc.detune.value;
+        return this.detuneSignal[0]();
     }
 
     getDutyCycle() {
-        return this.dutyCycle;
+        return this.dutyCycleSignal[0]();
     }
 
     getType() {
-        return this.osc.type;
+        return this.typeSignal[0]();
     }
 
     connect(destination: AudioNode): void {
@@ -84,6 +112,10 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
         } else {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
+    }
+
+    tick(): void {
+        console.log(`Ticking OscillatorEngine ${this.id}`);
     }
 
     cleanup(): void {

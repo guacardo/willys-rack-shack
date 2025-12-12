@@ -1,3 +1,4 @@
+import { createSignal, type Accessor, type Setter } from "solid-js";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 
 export type GainPorts = {
@@ -14,11 +15,15 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
     ports: GainPorts;
     engineType = "gain" as const;
 
+    readonly gainSignal: [Accessor<number>, Setter<number>];
+
     constructor(ctx: AudioContext, id: string = crypto.randomUUID()) {
         this.id = id;
         this.ctx = ctx;
         this.gain = ctx.createGain();
         this.gain.gain.value = 1.0;
+
+        this.gainSignal = createSignal(this.gain.gain.value);
 
         this.ports = {
             input: this.gain,
@@ -29,6 +34,9 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
 
     setAudioParams(props: Partial<{ gain: number | [number, number] }>) {
         updateAudioParamValue(this.ctx, this.gain, props);
+        if (props.gain !== undefined) {
+            this.gainSignal[1](Array.isArray(props.gain) ? props.gain[0] : props.gain);
+        }
     }
 
     getGain(): number {
@@ -50,6 +58,10 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
         } else {
             throw new Error(`Port "${portName}" is not modulate-able (not an AudioParam).`);
         }
+    }
+
+    tick(): void {
+        console.log(`Tick for GainEngine ${this.id}`);
     }
 
     cleanup(): void {

@@ -2,7 +2,6 @@ import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
 import { OscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engine";
 import { getEngineById } from "@/stores/engines.store";
-import { createSignal, createEffect, onCleanup } from "solid-js";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
 import { isPortConnected, connectionsMap, terminalToKey } from "@/stores/connections.store";
 
@@ -13,29 +12,10 @@ export interface WAKOscillatorProps {
 export function WAKOscillator({ id }: WAKOscillatorProps) {
     const engine = () => getEngineById(id) as OscillatorEngine | undefined;
 
-    // Local signals for display values
-    const [frequency, setFrequency] = createSignal(engine()?.getFrequency() ?? 440);
-    const [detune, setDetune] = createSignal(engine()?.getDetune() ?? 0);
-    const [dutyCycle, setDutyCycle] = createSignal(engine()?.getDutyCycle() ?? 0.5);
-    const [type, setType] = createSignal(engine()?.getType() ?? "sine");
-
-    // Poll the engine for current values
-    // todo, observer/visitor pattern for polling all active audio engines
-    let poller: number | undefined;
-    createEffect(() => {
-        if (poller) clearInterval(poller);
-
-        const eng = engine();
-        if (eng) {
-            poller = setInterval(() => {
-                setFrequency(eng.getFrequency());
-                setDetune(eng.getDetune());
-                setType(eng.getType());
-            }, 30);
-        }
-
-        onCleanup(() => poller && clearInterval(poller));
-    });
+    const frequency = () => engine()?.frequencySignal[0]() ?? 440;
+    const detune = () => engine()?.detuneSignal[0]() ?? 0;
+    const dutyCycle = () => engine()?.dutyCycleSignal[0]() ?? 0.5;
+    const type = () => engine()?.typeSignal[0]() ?? "sine";
 
     const handleParamChange = (param: "frequency" | "detune" | "type") => (e: Event) => {
         e.stopPropagation();
@@ -47,7 +27,6 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
         e.stopPropagation();
         const value = Number((e.target as HTMLInputElement).value);
         engine()?.setPulseWave(value);
-        setDutyCycle(value);
     };
 
     return (
