@@ -10,6 +10,8 @@ import { getGroup, getMembersOfGroup } from "@/stores/groups.store";
 import { isSelected, selectItem } from "@/stores/selection.store";
 import type { ViewportProps } from "../viewport";
 import styles from "./engine-module.module.scss";
+import { WAKLFO } from "@/components/wak/lfo/WAK.LFO";
+import { isLFOEngine } from "@/audio/lfo.engine";
 
 export function ViewportEngineModule(props: { id: string; viewport: ViewportProps }) {
     const group = createMemo(() => getGroup(props.id));
@@ -39,6 +41,8 @@ export function ViewportEngineModule(props: { id: string; viewport: ViewportProp
                             return <WAKOscillator id={engine.id} />;
                         } else if (isGainEngine(engine)) {
                             return <WAKGain id={engine.id} />;
+                        } else if (isLFOEngine(engine)) {
+                            return <WAKLFO id={engine.id} />;
                         }
                         return null;
                     })}

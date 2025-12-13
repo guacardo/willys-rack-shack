@@ -2,6 +2,7 @@ import { createStore } from "solid-js/store";
 import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { audioConnectionService } from "@/services/audio-connection.service";
+import { LFOEngine } from "@/audio/lfo.engine";
 
 // group.store.ts
 export type Group = {
@@ -49,12 +50,13 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
             id = createGroup("Poly Voice", [osc1.id, osc2.id, osc3.id, gain1.id]);
             break;
         case "lfo-mod":
-            const lfo = new OscillatorEngine(audioCtx);
-            const lfoGain = new GainEngine(audioCtx);
+            const lfo = new LFOEngine(audioCtx);
             const modulatedOsc = new OscillatorEngine(audioCtx);
+            const gain = new GainEngine(audioCtx);
             lfo.setAudioParams({ frequency: 5 });
+            // audioConnectionService.connect(lfo.id, modulatedOsc.id);
             // lfoGain.setAudioParams({ gain: 100 });
-            id = createGroup("LFO Mod", [lfo.id, lfoGain.id, modulatedOsc.id]);
+            id = createGroup("LFO Mod", [lfo.id, modulatedOsc.id, gain.id]);
             break;
     }
 

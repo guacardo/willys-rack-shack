@@ -41,7 +41,6 @@ export function UngroupedEngineItem(props: { engineId: string; onClick?: () => v
                 onClick={() => {
                     if (selectedGroupId()) {
                         addMember(selectedGroupId(), props.engineId);
-                        setSelectedGroupId(""); // Optionally reset after adding
                     }
                 }}
                 disabled={!selectedGroupId()}

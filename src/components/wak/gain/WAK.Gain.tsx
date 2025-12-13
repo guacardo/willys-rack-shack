@@ -1,4 +1,4 @@
-import { WUTInput } from "@/components/wut/input/WUT.Input";
+import { WUTSlider } from "@/components/wut/slider/WUT.Slider";
 import { WUTText } from "@/components/wut/text/WUT.Text";
 import styles from "./WAK.Gain.module.scss";
 import { getEngineById } from "@/stores/engines.store";
@@ -15,8 +15,7 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
     const engine = () => getEngineById(id) as GainEngine | undefined;
     const gain = () => engine()?.gainSignal[0]() || 1;
 
-    const handleGainChange = (e: Event) => {
-        const value = Number((e.target as HTMLInputElement).value);
+    const handleGainChange = (value: number) => {
         engine()?.setAudioParams({ gain: value });
     };
 
@@ -24,8 +23,7 @@ export function WAKGain({ id, orientation = "horizontal" }: WAKGainProps) {
         <div class={`${styles["wak-gain"]} ${styles[orientation]}`}>
             <div class={`${styles["control"]}`}>
                 <WUTText variant="label">Gain</WUTText>
-                <WUTInput type="range" min="0" max="2" step="0.01" value={gain()} onInput={handleGainChange} orientation={orientation} />
-                <WUTText variant="number">{gain().toFixed(2)}</WUTText>
+                <WUTSlider min={0} max={2} step={0.01} orientation={orientation} value={gain()} onInput={handleGainChange} />
             </div>
             <div class={styles["ports"]}>
                 {engine() &&

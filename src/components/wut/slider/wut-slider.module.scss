@@ -1,0 +1,113 @@
+.slider {
+    position: relative;
+    cursor: pointer;
+    outline: none;
+
+    &:focus {
+        .track {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 12px 2px var(--color-accent), var(--box-shadow);
+        }
+    }
+
+    &.horizontal {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    &.vertical {
+        height: 120px;
+        width: 40px;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.track {
+    position: relative;
+    background: var(--color-bg);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--border-radius);
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    .horizontal & {
+        width: 100%;
+        height: 8px;
+    }
+
+    .vertical & {
+        height: 100%;
+        width: 8px;
+    }
+}
+
+.fill {
+    position: absolute;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    border-radius: var(--border-radius);
+    transition: all 0.1s ease-out;
+
+    .horizontal & {
+        left: 0;
+        top: 0;
+        bottom: 0;
+        min-width: 2px;
+    }
+
+    .vertical & {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        min-height: 2px;
+    }
+}
+
+.thumb {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--color-accent);
+    border: 2px solid var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px rgba(0, 255, 255, 0.5), var(--box-shadow);
+    transition: transform 0.1s ease-out, box-shadow 0.2s;
+    cursor: grab;
+
+    &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 16px 4px rgba(0, 255, 255, 0.8), var(--box-shadow);
+    }
+
+    &:active {
+        cursor: grabbing;
+        transform: scale(1.05);
+    }
+
+    .horizontal & {
+        top: 50%;
+        transform: translate(-50%, -50%);
+
+        &:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        &:active {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+    }
+
+    .vertical & {
+        left: 50%;
+        transform: translate(-50%, 50%);
+
+        &:hover {
+            transform: translate(-50%, 50%) scale(1.1);
+        }
+
+        &:active {
+            transform: translate(-50%, 50%) scale(1.05);
+        }
+    }
+}

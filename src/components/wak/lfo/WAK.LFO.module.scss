@@ -1,21 +1,6 @@
-@use "@/components/wak/WAK.shared.module.scss" as *;
-
 .lfo {
-    @include wak-module;
     background: linear-gradient(135deg, #2a4a5a 0%, #1a2a3a 100%);
     border-color: #4a7a9a;
-
-    label {
-        @include wak-control;
-    }
-
-    .control {
-        @include wak-control-display;
-    }
-
-    .ports {
-        @include wak-ports;
-    }
 
     select {
         background: rgba(0, 0, 0, 0.3);
@@ -30,9 +15,5 @@
             outline: none;
             border-color: #4a7a9a;
         }
-    }
-
-    input[type="range"] {
-        @include wak-slider;
     }
 }
