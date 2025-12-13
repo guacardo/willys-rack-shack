@@ -1,5 +1,6 @@
 import styles from "./WAK.Oscillator.module.scss";
 import { WUTText } from "../../wut/text/WUT.Text";
+import { WUTSlider } from "@/components/wut/slider/WUT.Slider";
 import { OscillatorEngine, type OscillatorPorts } from "@/audio/oscillator.engine";
 import { getEngineById } from "@/stores/engines.store";
 import { WAKConnectionIndicator } from "../connection-indicator/WAK.connection-indicator";
@@ -17,45 +18,78 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
     const dutyCycle = () => engine()?.dutyCycleSignal[0]() ?? 0.5;
     const type = () => engine()?.typeSignal[0]() ?? "sine";
 
-    const handleParamChange = (param: "frequency" | "detune" | "type") => (e: Event) => {
-        e.stopPropagation();
-        const value = param === "type" ? (e.target as HTMLSelectElement).value : Number((e.target as HTMLInputElement).value);
-        engine()?.setAudioParams({ [param]: value });
+    const handleFrequencyChange = (value: number) => {
+        engine()?.setAudioParams({ frequency: value });
     };
 
-    const handleDutyCycleChange = (e: Event) => {
-        e.stopPropagation();
-        const value = Number((e.target as HTMLInputElement).value);
+    const handleDetuneChange = (value: number) => {
+        engine()?.setAudioParams({ detune: value });
+    };
+
+    const handleDutyCycleChange = (value: number) => {
         engine()?.setPulseWave(value);
+    };
+
+    const handleTypeChange = (e: Event) => {
+        e.stopPropagation();
+        const value = (e.target as HTMLSelectElement).value as OscillatorType;
+        engine()?.setAudioParams({ type: value });
+    };
+
+    const handleFrequencyBlur = (e: FocusEvent) => {
+        const value = Number((e.target as HTMLSpanElement).textContent);
+        if (!isNaN(value) && value >= 50 && value <= 2000) {
+            engine()?.setAudioParams({ frequency: value });
+        }
+    };
+
+    const handleDetuneBlur = (e: FocusEvent) => {
+        const value = Number((e.target as HTMLSpanElement).textContent);
+        if (!isNaN(value) && value >= -1200 && value <= 1200) {
+            engine()?.setAudioParams({ detune: value });
+        }
+    };
+
+    const handleDutyCycleBlur = (e: FocusEvent) => {
+        const value = Number((e.target as HTMLSpanElement).textContent);
+        if (!isNaN(value) && value >= 0.01 && value <= 0.99) {
+            engine()?.setPulseWave(value);
+        }
     };
 
     return (
         <div class={styles.oscillator}>
             <WUTText variant="subheader">{engine()?.name}</WUTText>
             <label>
-                <input type="range" min="50" max="2000" value={frequency()} onInput={handleParamChange("frequency")} />
+                <WUTSlider min={50} max={2000} orientation="vertical" value={frequency()} onInput={handleFrequencyChange} />
                 <div class={styles["control"]}>
-                    <WUTText variant="number">{frequency()}</WUTText>
+                    <WUTText variant="number" contentEditable onBlur={handleFrequencyBlur}>
+                        {frequency()}
+                    </WUTText>
                     <WUTText variant="unit">hz</WUTText>
                 </div>
             </label>
             <label>
-                <input type="range" min="-1200" max="1200" value={detune()} onInput={handleParamChange("detune")} />
+                <WUTSlider min={-1200} max={1200} orientation="vertical" value={detune()} onInput={handleDetuneChange} />
                 <div class={styles["control"]}>
-                    <WUTText variant="number">{detune()}</WUTText>
+                    <WUTText variant="number" contentEditable onBlur={handleDetuneBlur}>
+                        {detune()}
+                    </WUTText>
                     <WUTText variant="unit">ct</WUTText>
                 </div>
             </label>
             <label>
-                <input type="range" min="0.01" max="0.99" step="0.01" value={dutyCycle()} onInput={handleDutyCycleChange} />
+                <WUTSlider min={0.01} max={0.99} step={0.01} value={dutyCycle()} onInput={handleDutyCycleChange} />
                 <div class={styles["control"]}>
-                    <WUTText variant="number">{dutyCycle().toFixed(2)}</WUTText>
+                    <WUTText variant="number" contentEditable onBlur={handleDutyCycleBlur}>
+                        {dutyCycle().toFixed(2)}
+                    </WUTText>
                     <WUTText variant="unit">duty</WUTText>
                 </div>
             </label>
             <label>
                 <WUTText variant="label">Type:</WUTText>
-                <select value={type()} onChange={handleParamChange("type")}>
+                <select value={type()} onChange={handleTypeChange}>
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>
                     <option value="sawtooth">Sawtooth</option>
