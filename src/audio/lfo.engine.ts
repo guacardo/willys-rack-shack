@@ -1,5 +1,7 @@
+import type { EnginePortMap, Terminal } from "@/stores/connections.store";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 import { createSignal, type Accessor, type Setter } from "solid-js";
+import { addEngine } from "@/stores/engines.store";
 
 export type LFOPorts = {
     output: GainNode;
@@ -35,7 +37,7 @@ export class LFOEngine implements IAudioEngine<OscillatorNode, LFOPorts> {
 
         // Create depth control (gain node to scale modulation amount)
         this.depthControl = ctx.createGain();
-        this.depthControl.gain.value = 1.0; // Full depth by default
+        this.depthControl.gain.value = 100.0; // Full depth by default
         this.osc.connect(this.depthControl);
 
         // Signals for UI
@@ -50,6 +52,8 @@ export class LFOEngine implements IAudioEngine<OscillatorNode, LFOPorts> {
             detune: this.osc.detune,
             depth: this.depthControl.gain,
         };
+
+        addEngine(this);
     }
 
     setAudioParams(
@@ -78,6 +82,14 @@ export class LFOEngine implements IAudioEngine<OscillatorNode, LFOPorts> {
         if (props.type !== undefined) {
             this.typeSignal[1](props.type);
         }
+    }
+
+    terminal(port: EnginePortMap["lfo"]): Terminal {
+        return {
+            id: this.id,
+            type: this.engineType,
+            port: port,
+        };
     }
 
     getName(): string {

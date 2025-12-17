@@ -27,7 +27,7 @@ export function WAKLFO({ id }: WAKLFOProps) {
         <div class={styles.lfo}>
             <WUTText variant="subheader">{engine()?.name}</WUTText>
             <label>
-                <input type="range" min="0.01" max="100" step="0.01" value={frequency()} onInput={handleParamChange("frequency")} />
+                <input type="range" min="0.01" max="200" step="0.01" value={frequency()} onInput={handleParamChange("frequency")} />
                 <div class={styles["control"]}>
                     <WUTText variant="number">{frequency().toFixed(2)}</WUTText>
                     <WUTText variant="unit">hz</WUTText>
@@ -41,7 +41,7 @@ export function WAKLFO({ id }: WAKLFOProps) {
                 </div>
             </label>
             <label>
-                <input type="range" min="0" max="2" step="0.01" value={depth()} onInput={handleParamChange("depth")} />
+                <input type="range" min="0" max="400" step="1" value={depth()} onInput={handleParamChange("depth")} />
                 <div class={styles["control"]}>
                     <WUTText variant="number">{depth().toFixed(2)}</WUTText>
                     <WUTText variant="unit">depth</WUTText>

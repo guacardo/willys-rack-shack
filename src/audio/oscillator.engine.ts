@@ -1,6 +1,7 @@
 import { addEngine } from "@/stores/engines.store";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 import { createSignal, type Accessor, type Setter } from "solid-js";
+import type { EnginePortMap, Terminal } from "@/stores/connections.store";
 
 export type OscillatorPorts = {
     output: OscillatorNode;
@@ -80,6 +81,14 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
         this.dutyCycleSignal[1](safeDuty);
     }
 
+    terminal(port: EnginePortMap["oscillator"]): Terminal {
+        return {
+            id: this.id,
+            type: this.engineType,
+            port: port,
+        };
+    }
+
     getName(): string {
         return this.name;
     }
@@ -112,5 +121,5 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
 }
 
 export function isOscillatorEngine(obj: any): obj is OscillatorEngine & { osc: OscillatorNode } {
-    return obj && typeof obj === "object" && obj.ctx instanceof AudioContext && typeof obj.ports === "object" && obj.osc instanceof OscillatorNode;
+    return obj.engineType === "oscillator" && obj.osc instanceof OscillatorNode;
 }

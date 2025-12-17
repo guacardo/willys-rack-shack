@@ -35,9 +35,14 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
             break;
         case "single-osc":
             const osc = new OscillatorEngine(audioCtx);
+            const modulator = new LFOEngine(audioCtx);
             const outGain = new GainEngine(audioCtx);
 
-            id = createGroup("Single Osc", [osc.id, outGain.id]);
+            audioConnectionService.connect(modulator.terminal("output"), osc.terminal("frequency"));
+            audioConnectionService.connect(osc.terminal("output"), outGain.terminal("input"));
+            audioConnectionService.connect(outGain.terminal("output"), { id: "destination", type: "destination", port: "input" });
+
+            id = createGroup("Single Osc", [osc.id, modulator.id, outGain.id]);
             break;
         case "poly-voice":
             const osc1 = new OscillatorEngine(audioCtx);
@@ -61,7 +66,7 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
     }
 
     // Use the service to handle all connections
-    audioConnectionService.syncGroupConnections(id);
+    // audioConnectionService.syncGroupConnections(id);
 
     return id;
 }

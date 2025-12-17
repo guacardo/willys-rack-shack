@@ -13,6 +13,8 @@ export interface WAKOscillatorProps {
 export function WAKOscillator({ id }: WAKOscillatorProps) {
     const engine = () => getEngineById(id) as OscillatorEngine | undefined;
 
+    console.log(engine());
+
     const frequency = () => engine()?.frequencySignal[0]() ?? 440;
     const detune = () => engine()?.detuneSignal[0]() ?? 0;
     const dutyCycle = () => engine()?.dutyCycleSignal[0]() ?? 0.5;
@@ -61,7 +63,7 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
         <div class={styles.oscillator}>
             <WUTText variant="subheader">{engine()?.name}</WUTText>
             <label>
-                <WUTSlider min={50} max={2000} orientation="vertical" value={frequency()} onInput={handleFrequencyChange} />
+                <WUTSlider min={50} max={2000} value={frequency()} onInput={handleFrequencyChange} />
                 <div class={styles["control"]}>
                     <WUTText variant="number" contentEditable onBlur={handleFrequencyBlur}>
                         {frequency()}
@@ -70,7 +72,7 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
                 </div>
             </label>
             <label>
-                <WUTSlider min={-1200} max={1200} orientation="vertical" value={detune()} onInput={handleDetuneChange} />
+                <WUTSlider min={-1200} max={1200} value={detune()} onInput={handleDetuneChange} />
                 <div class={styles["control"]}>
                     <WUTText variant="number" contentEditable onBlur={handleDetuneBlur}>
                         {detune()}
@@ -99,7 +101,11 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
                     </option>
                 </select>
             </label>
+            <div class={styles["modulation-station"]}>
+                <WUTText variant="subheader">Modulation Station</WUTText>
+            </div>
             <div class={styles["ports"]}>
+                <WUTText variant="subheader">Ports</WUTText>
                 {engine() &&
                     Object.entries(engine()!.ports).map(([portName, _]) => {
                         const status = getPortStatus({
@@ -107,7 +113,15 @@ export function WAKOscillator({ id }: WAKOscillatorProps) {
                             type: engine()!.engineType,
                             port: portName as keyof OscillatorPorts,
                         });
-                        return <WAKConnectionIndicator label={portName} status={status} />;
+                        return (
+                            <WAKConnectionIndicator
+                                label={portName}
+                                status={status}
+                                onClick={() => {
+                                    console.log("clickyulasdhfkjh");
+                                }}
+                            />
+                        );
                     })}
             </div>
         </div>

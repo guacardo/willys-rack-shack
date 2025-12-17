@@ -13,7 +13,7 @@ export class AudioConnectionService {
         const toEngine = to.id === "destination" ? null : getEngineById(to.id);
 
         if (!fromEngine) {
-            console.error("Source engine not found");
+            console.error("Source engine not found", from, to);
             return false;
         }
 

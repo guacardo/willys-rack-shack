@@ -6,7 +6,7 @@ import { createSignal } from "solid-js";
 
 export type ConnectionStatus = "on" | "off" | "who-knows" | "error";
 
-type EnginePortMap = {
+export type EnginePortMap = {
     oscillator: keyof OscillatorPorts;
     gain: keyof GainPorts;
     lfo: keyof LFOPorts;

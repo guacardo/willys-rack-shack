@@ -1,6 +1,7 @@
 import { createSignal, type Accessor, type Setter } from "solid-js";
 import { updateAudioParamValue, type IAudioEngine } from "./engine";
 import { addEngine } from "@/stores/engines.store";
+import type { EnginePortMap, Terminal } from "@/stores/connections.store";
 
 export type GainPorts = {
     input: GainNode;
@@ -40,6 +41,14 @@ export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
         if (props.gain !== undefined) {
             this.gainSignal[1](Array.isArray(props.gain) ? props.gain[0] : props.gain);
         }
+    }
+
+    terminal(port: EnginePortMap["gain"]): Terminal {
+        return {
+            id: this.id,
+            type: this.engineType,
+            port: port,
+        };
     }
 
     getGain(): number {
