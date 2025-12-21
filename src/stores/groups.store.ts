@@ -48,11 +48,21 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
             const osc1 = new OscillatorEngine(audioCtx);
             const osc2 = new OscillatorEngine(audioCtx);
             const osc3 = new OscillatorEngine(audioCtx);
-            const gain1 = new GainEngine(audioCtx);
+            const modulator1 = new LFOEngine(audioCtx);
+            const outGain1 = new GainEngine(audioCtx);
             osc1.setAudioParams({ frequency: 150 });
             osc2.setAudioParams({ frequency: 200 });
             osc3.setAudioParams({ frequency: 300 });
-            id = createGroup("Poly Voice", [osc1.id, osc2.id, osc3.id, gain1.id]);
+
+            audioConnectionService.connect(modulator1.terminal("output"), osc1.terminal("frequency"));
+            audioConnectionService.connect(modulator1.terminal("output"), osc2.terminal("frequency"));
+            audioConnectionService.connect(modulator1.terminal("output"), osc3.terminal("frequency"));
+            audioConnectionService.connect(osc1.terminal("output"), outGain1.terminal("input"));
+            audioConnectionService.connect(osc2.terminal("output"), outGain1.terminal("input"));
+            audioConnectionService.connect(osc3.terminal("output"), outGain1.terminal("input"));
+            audioConnectionService.connect(outGain1.terminal("output"), { id: "destination", type: "destination", port: "input" });
+
+            id = createGroup("Poly Voice", [osc1.id, osc2.id, osc3.id, modulator1.id, outGain1.id]);
             break;
         case "lfo-mod":
             const lfo = new LFOEngine(audioCtx);
