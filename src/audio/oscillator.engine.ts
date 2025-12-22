@@ -1,5 +1,5 @@
 import { addEngine } from "@/stores/engines.store";
-import { updateAudioParamValue, type IAudioEngine } from "./engine";
+import { updateAudioParamValue, type IAudioEngine, type IKeyboardControllable } from "./engine";
 import { createSignal, type Accessor, type Setter } from "solid-js";
 import type { EnginePortMap, Terminal } from "@/stores/connections.store";
 
@@ -10,7 +10,7 @@ export type OscillatorPorts = {
     dutyCycle: AudioParam;
 };
 
-export class OscillatorEngine implements IAudioEngine<OscillatorNode, OscillatorPorts> {
+export class OscillatorEngine implements IAudioEngine<OscillatorNode, OscillatorPorts>, IKeyboardControllable {
     id: string;
     name: string = "Oscillator";
     ctx: AudioContext;
@@ -18,6 +18,10 @@ export class OscillatorEngine implements IAudioEngine<OscillatorNode, Oscillator
     ports: OscillatorPorts;
     dutyCycle: ConstantSourceNode;
     engineType = "oscillator" as const;
+    keyboardControl = {
+        respondToKeyboard: true,
+        role: "pitch" as const,
+    };
 
     // Signals for UI reactivity
     readonly frequencySignal: [Accessor<number>, Setter<number>];

@@ -24,6 +24,18 @@ export interface IAudioEngine<T extends AudioNode, P extends Record<string, Audi
     cleanup(): void;
 }
 
+export interface IKeyboardControllable {
+    keyboardControl: {
+        respondToKeyboard: boolean;
+        role: "pitch" | "envelope" | "ignore";
+    };
+}
+
+export type KeyboardControllableEngine = IAudioEngine<AudioNode, Record<string, AudioNode | AudioParam>> & IKeyboardControllable;
+export function isKeyboardControllable(engine: IAudioEngine<AudioNode, Record<string, AudioNode | AudioParam>>): engine is KeyboardControllableEngine {
+    return "keyboardControl" in engine && typeof (engine as any).keyboardControl === "object";
+}
+
 export function updateAudioParamValue<T extends AudioNode>(
     context: AudioContext,
     node: T,
