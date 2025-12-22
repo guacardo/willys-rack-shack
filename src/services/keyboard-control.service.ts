@@ -2,7 +2,7 @@ import { isKeyboardControllable } from "@/audio/engine";
 import { GainEngine, isGainEngine } from "@/audio/gain.engine";
 import { isOscillatorEngine, OscillatorEngine } from "@/audio/oscillator.engine";
 import { getEngineById } from "@/stores/engines.store";
-import { getGroup, getMembersOfGroup } from "@/stores/groups.store";
+import { getGroup, getMembersOfGroup, registerKeyboardController } from "@/stores/groups.store";
 import { createEffect } from "solid-js";
 
 export class KeyboardController {
@@ -199,4 +199,24 @@ export class KeyboardInputManager {
 
         event.preventDefault();
     }
+}
+
+// Singleton instance for global keyboard input management
+export const keyboardInputManager = new KeyboardInputManager();
+
+// Helper to enable keyboard control on a group
+export function enableKeyboardControlForGroup(groupId: string): KeyboardController {
+    const controller = new KeyboardController(groupId);
+
+    // Wire up keyboard input to controller
+    keyboardInputManager.onNoteOn = (note, vel) => controller.noteOn(note, vel);
+    keyboardInputManager.onNoteOff = () => controller.noteOff();
+
+    keyboardInputManager.enable();
+
+    // Register with groups store for reactive member changes
+    registerKeyboardController(groupId, controller);
+
+    console.log(`Keyboard control enabled for group ${groupId}`);
+    return controller;
 }

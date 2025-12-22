@@ -1,5 +1,5 @@
 import { createSignal, type Accessor, type Setter } from "solid-js";
-import { updateAudioParamValue, type IAudioEngine } from "./engine";
+import { updateAudioParamValue, type IAudioEngine, type IKeyboardControllable } from "./engine";
 import { addEngine } from "@/stores/engines.store";
 import type { EnginePortMap, Terminal } from "@/stores/connections.store";
 
@@ -9,13 +9,17 @@ export type GainPorts = {
     gain: AudioParam;
 };
 
-export class GainEngine implements IAudioEngine<GainNode, GainPorts> {
+export class GainEngine implements IAudioEngine<GainNode, GainPorts>, IKeyboardControllable {
     id: string;
     name: string = "Gain";
     ctx: AudioContext;
     gain: GainNode;
     ports: GainPorts;
     engineType = "gain" as const;
+    keyboardControl = {
+        respondToKeyboard: true,
+        role: "envelope" as const,
+    };
 
     readonly gainSignal: [Accessor<number>, Setter<number>];
 

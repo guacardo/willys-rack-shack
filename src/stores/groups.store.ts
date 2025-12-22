@@ -3,7 +3,7 @@ import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { audioConnectionService } from "@/services/audio-connection.service";
 import { LFOEngine } from "@/audio/lfo.engine";
-import type { KeyboardController } from "@/services/keyboard-control.service";
+import { enableKeyboardControlForGroup, type KeyboardController } from "@/services/keyboard-control.service";
 
 // group.store.ts
 export type Group = {
@@ -64,6 +64,7 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
             audioConnectionService.connect(outGain1.terminal("output"), { id: "destination", type: "destination", port: "input" });
 
             id = createGroup("Poly Voice", [osc1.id, osc2.id, osc3.id, modulator1.id, outGain1.id]);
+            enableKeyboardControlForGroup(id);
             break;
         case "lfo-mod":
             const lfo = new LFOEngine(audioCtx);
