@@ -91,3 +91,112 @@ export class KeyboardController {
         return 440 * Math.pow(2, (midiNote - 69) / 12);
     }
 }
+
+// Keyboard mapping: Computer keyboard -> MIDI notes
+// Standard piano keyboard layout (2 octaves)
+const KEYBOARD_TO_MIDI: Record<string, number> = {
+    // Lower octave (C3-B3): Z-M keys (bottom row)
+    z: 48, // C3
+    s: 49, // C#3
+    x: 50, // D3
+    d: 51, // D#3
+    c: 52, // E3
+    v: 53, // F3
+    g: 54, // F#3
+    b: 55, // G3
+    h: 56, // G#3
+    n: 57, // A3
+    j: 58, // A#3
+    m: 59, // B3
+
+    // Upper octave (C4-B4): Q-U keys (top row)
+    q: 60, // C4 (Middle C)
+    "2": 61, // C#4
+    w: 62, // D4
+    "3": 63, // D#4
+    e: 64, // E4
+    r: 65, // F4
+    "5": 66, // F#4
+    t: 67, // G4
+    "6": 68, // G#4
+    y: 69, // A4
+    "7": 70, // A#4
+    u: 71, // B4
+    i: 72, // C5
+};
+
+export class KeyboardInputManager {
+    private activeKeys = new Set<string>();
+    private activeNotes = new Map<string, number>(); // key -> MIDI note
+    private enabled = false;
+
+    onNoteOn?: (midiNote: number, velocity: number) => void;
+    onNoteOff?: (midiNote: number) => void;
+
+    constructor() {
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleKeyUp = this.handleKeyUp.bind(this);
+    }
+
+    enable() {
+        if (this.enabled) return;
+        this.enabled = true;
+        window.addEventListener("keydown", this.handleKeyDown);
+        window.addEventListener("keyup", this.handleKeyUp);
+        console.log("Keyboard input enabled");
+    }
+
+    disable() {
+        if (!this.enabled) return;
+        this.enabled = false;
+        window.removeEventListener("keydown", this.handleKeyDown);
+        window.removeEventListener("keyup", this.handleKeyUp);
+
+        // Release all active notes
+        this.activeNotes.forEach((midiNote) => {
+            this.onNoteOff?.(midiNote);
+        });
+        this.activeKeys.clear();
+        this.activeNotes.clear();
+        console.log("Keyboard input disabled");
+    }
+
+    private handleKeyDown(event: KeyboardEvent) {
+        // Ignore if typing in an input field
+        const target = event.target as HTMLElement;
+        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+            return;
+        }
+
+        const key = event.key.toLowerCase();
+        const midiNote = KEYBOARD_TO_MIDI[key];
+
+        if (midiNote === undefined) return;
+
+        // Prevent key repeat
+        if (this.activeKeys.has(key)) return;
+
+        this.activeKeys.add(key);
+        this.activeNotes.set(key, midiNote);
+
+        // Fixed velocity for now, could add velocity sensitivity later
+        const velocity = 0.8;
+        this.onNoteOn?.(midiNote, velocity);
+
+        event.preventDefault();
+    }
+
+    private handleKeyUp(event: KeyboardEvent) {
+        const key = event.key.toLowerCase();
+        const midiNote = this.activeNotes.get(key);
+
+        if (midiNote === undefined) return;
+
+        this.activeKeys.delete(key);
+        this.activeNotes.delete(key);
+
+        this.onNoteOff?.(midiNote);
+
+        event.preventDefault();
+    }
+}

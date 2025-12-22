@@ -3,6 +3,7 @@ import { GainEngine } from "@/audio/gain.engine";
 import { OscillatorEngine } from "@/audio/oscillator.engine";
 import { audioConnectionService } from "@/services/audio-connection.service";
 import { LFOEngine } from "@/audio/lfo.engine";
+import type { KeyboardController } from "@/services/keyboard-control.service";
 
 // group.store.ts
 export type Group = {
@@ -81,8 +82,20 @@ export function createGroupFromTemplate(template: GroupTemplate, audioCtx: Audio
     return id;
 }
 
+const keyboardControllers = new Map<string, KeyboardController>();
+export function registerKeyboardController(groupId: string, controller: KeyboardController) {
+    keyboardControllers.set(groupId, controller);
+}
+
 export function addMember(groupId: string, memberId: string) {
     setGroups(groups.map((g) => (g.id === groupId ? { ...g, members: g.members.includes(memberId) ? g.members : [...g.members, memberId] } : g)));
+
+    // Notify keyboard controller if exists
+    const controller = keyboardControllers.get(groupId);
+    if (controller) {
+        controller.scan(); // Re-scan to pick up new member
+    }
+
     // Use the service to sync connections
     audioConnectionService.syncGroupConnections(groupId);
 }
